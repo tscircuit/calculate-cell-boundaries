@@ -1,15 +1,5 @@
 # calculate-cell-boundary
 
-To install dependencies:
+Calculate cell boundaries between multiple boxes
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.16. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+<img width="1656" height="1326" alt="image" src="https://github.com/user-attachments/assets/b581f493-c420-415c-8e34-c96343abb752" />
