@@ -1,0 +1,120 @@
+<svg width="640" height="640" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="white" />
+  <g>
+    <polyline data-points="35,177.5 480,177.5" data-type="line" data-label="" points="40,379.1549295774648 390.9859154929577,379.1549295774648" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="35,315 480,315" data-type="line" data-label="" points="40,270.70422535211276 390.9859154929577,270.70422535211276" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="175,40 175,465" data-type="line" data-label="" points="150.42253521126761,487.60563380281695 150.42253521126761,152.39436619718316" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="340,40 340,465" data-type="line" data-label="" points="280.5633802816901,487.60563380281695 280.5633802816901,152.39436619718316" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="480,40 480,465" data-type="line" data-label="" points="390.9859154929577,487.60563380281695 390.9859154929577,152.39436619718316" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="480,272.5 637.5,272.5" data-type="line" data-label="" points="390.9859154929577,304.2253521126761 515.2112676056338,304.2253521126761" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="637.5,167.5 637.5,465" data-type="line" data-label="" points="515.2112676056338,387.0422535211268 515.2112676056338,152.39436619718316" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <polyline data-points="637.5,167.5 745,167.5" data-type="line" data-label="" points="515.2112676056338,387.0422535211268 600,387.0422535211268" fill="none" stroke="#000" stroke-width="1.5774647887323943" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="260" data-y="240" x="174.0845070422535" y="286.47887323943667" width="86.76056338028167" height="86.76056338028172" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="260" data-y="402.5" x="162.25352112676055" y="160.28169014084511" width="110.42253521126761" height="82.81690140845069" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="97.5" data-y="247.5" x="47.887323943661976" y="294.3661971830986" width="82.81690140845069" height="59.15492957746483" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="410" data-y="250" x="300.28169014084506" y="274.6478873239437" width="70.98591549295776" height="94.64788732394368" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="250" data-y="97.5" x="178.0281690140845" y="396.90140845070425" width="63.09859154929575" height="90.7042253521127" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="95" data-y="100" x="40" y="404.78873239436626" width="94.64788732394368" height="70.9859154929577" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="405" data-y="102.5" x="284.5070422535211" y="392.9577464788733" width="94.64788732394368" height="90.7042253521127" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="107.5" data-y="405" x="55.774647887323944" y="152.39436619718316" width="82.81690140845072" height="94.64788732394368" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="410" data-y="405" x="288.4507042253521" y="164.2253521126761" width="94.64788732394362" height="70.98591549295776" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="557.5" data-y="175" x="406.76056338028167" y="333.8028169014085" width="90.70422535211264" height="94.64788732394368" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="547.5" data-y="350" x="398.8732394366197" y="211.54929577464793" width="90.70422535211264" height="63.09859154929575" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g>
+    <rect data-type="rect" data-label="" data-x="702.5" data-y="252.5" x="532.9577464788732" y="270.70422535211276" width="67.04225352112678" height="98.5915492957746" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="1.267857142857143" />
+  </g>
+  <g id="crosshair" style="display: none">
+    <line id="crosshair-h" y1="0" y2="640" stroke="#666" stroke-width="0.5" />
+    <line id="crosshair-v" x1="0" x2="640" stroke="#666" stroke-width="0.5" /><text id="coordinates" font-family="monospace" font-size="12" fill="#666"></text>
+  </g>
+  <script>
+    <![CDATA[
+    document.currentScript.parentElement.addEventListener('mousemove', (e) => {
+      const svg = e.currentTarget;
+      const rect = svg.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const crosshair = svg.getElementById('crosshair');
+      const h = svg.getElementById('crosshair-h');
+      const v = svg.getElementById('crosshair-v');
+      const coords = svg.getElementById('coordinates');
+
+      crosshair.style.display = 'block';
+      h.setAttribute('x1', '0');
+      h.setAttribute('x2', '640');
+      h.setAttribute('y1', y);
+      h.setAttribute('y2', y);
+      v.setAttribute('x1', x);
+      v.setAttribute('x2', x);
+      v.setAttribute('y1', '0');
+      v.setAttribute('y2', '640');
+
+      // Calculate real coordinates using inverse transformation
+      const matrix = {
+        "a": 0.7887323943661971,
+        "c": 0,
+        "e": 12.394366197183103,
+        "b": 0,
+        "d": -0.7887323943661971,
+        "f": 519.1549295774648
+      };
+      // Manually invert and apply the affine transform
+      // Since we only use translate and scale, we can directly compute:
+      // x' = (x - tx) / sx
+      // y' = (y - ty) / sy
+      const sx = matrix.a;
+      const sy = matrix.d;
+      const tx = matrix.e;
+      const ty = matrix.f;
+      const realPoint = {
+        x: (x - tx) / sx,
+        y: (y - ty) / sy // Flip y back since we used negative scale
+      }
+
+      coords.textContent = `(${realPoint.x.toFixed(2)}, ${realPoint.y.toFixed(2)})`;
+      coords.setAttribute('x', (x + 5).toString());
+      coords.setAttribute('y', (y - 5).toString());
+    });
+    document.currentScript.parentElement.addEventListener('mouseleave', () => {
+      document.currentScript.parentElement.getElementById('crosshair').style.display = 'none';
+    });
+    ]]>
+  </script>
+</svg>
