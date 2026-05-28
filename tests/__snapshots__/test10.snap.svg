@@ -1,10 +1,10 @@
 <svg width="640" height="640" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
   <rect width="100%" height="100%" fill="white" />
   <g>
-    <polyline data-points="325,50 325,275" data-type="line" data-label="" points="320,529.9999999999999 320,109.99999999999989" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
+    <polyline data-points="300,50 300,275" data-type="line" data-label="" points="273.33333333333337,529.9999999999999 273.33333333333337,109.99999999999989" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
   </g>
   <g>
-    <polyline data-points="325,162.5 475,162.5" data-type="line" data-label="" points="320,319.99999999999994 600,319.99999999999994" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
+    <polyline data-points="300,162.5 475,162.5" data-type="line" data-label="" points="273.33333333333337,319.99999999999994 600,319.99999999999994" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
   </g>
   <g>
     <rect data-type="rect" data-label="" data-x="425" data-y="100" x="413.33333333333337" y="343.33333333333326" width="186.66666666666663" height="186.66666666666663" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="0.5357142857142857" />
