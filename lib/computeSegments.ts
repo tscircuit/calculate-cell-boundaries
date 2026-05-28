@@ -1,5 +1,5 @@
 import type { Midline, Intersection, Line, CellContent } from "./internalTypes"
-import { segmentDistanceToAnyCell } from "./utils"
+import { segmentDistanceToAnyCell, pairs } from "./utils"
 
 export const computeSegments = (
   midlines: Midline[],
@@ -23,17 +23,13 @@ export const computeSegments = (
 
     const allPoints = [midline.start, ...midlineIntersections, midline.end]
 
-    for (let i = 0; i < allPoints.length - 1; i++) {
+    for (const [start, end] of pairs(allPoints)) {
       const segment: Line = {
         id: `segment-${segmentId++}`,
-        start: allPoints[i],
-        end: allPoints[i + 1],
+        start,
+        end,
         fromCellIds: midline.cellIds,
-        distanceToAnyCell: segmentDistanceToAnyCell(
-          allPoints[i],
-          allPoints[i + 1],
-          cellContents,
-        ),
+        distanceToAnyCell: segmentDistanceToAnyCell(start, end, cellContents),
       }
       allSegments.push(segment)
     }

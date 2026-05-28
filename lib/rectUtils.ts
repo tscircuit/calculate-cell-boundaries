@@ -33,7 +33,7 @@ export class DSU {
     this.parent = Array.from({ length: n }, (_, i) => i)
   }
   find(i: number): number {
-    if (this.parent[i] !== i) this.parent[i] = this.find(this.parent[i])
+    if (this.parent[i] !== i) this.parent[i] = this.find(this.parent[i]!)
     return this.parent[i]
   }
   union(i: number, j: number) {

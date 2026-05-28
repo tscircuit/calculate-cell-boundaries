@@ -65,7 +65,7 @@ const App: React.FC = () => {
   const handleCellMouseDown = (index: number, event: React.MouseEvent) => {
     event.preventDefault()
     const clickPos = getSVGCoordinates(event)
-    const cell = cellContents[index]
+    const cell = cellContents[index]!
     setDraggingCell({
       index,
       offsetX: clickPos.x - cell.minX,
@@ -85,7 +85,7 @@ const App: React.FC = () => {
       newMinX = Math.round(newMinX / GRID_SIZE) * GRID_SIZE
       newMinY = Math.round(newMinY / GRID_SIZE) * GRID_SIZE
 
-      const cell = cellContents[draggingCell.index]
+      const cell = cellContents[draggingCell.index]!
       const width = cell.maxX - cell.minX
       const height = cell.maxY - cell.minY
 
@@ -170,15 +170,18 @@ const App: React.FC = () => {
       // after validation.
       if (
         Array.isArray(parsedCells) &&
-        parsedCells.every(
-          (c: any) =>
-            typeof c.minX === "number" &&
-            typeof c.minY === "number" &&
-            typeof c.maxX === "number" &&
-            typeof c.maxY === "number" &&
-            c.minX < c.maxX &&
-            c.minY < c.maxY,
-        )
+        parsedCells.every((c: unknown) => {
+          if (typeof c !== "object" || c === null) return false
+          const obj = c as Record<string, unknown>
+          return (
+            typeof obj.minX === "number" &&
+            typeof obj.minY === "number" &&
+            typeof obj.maxX === "number" &&
+            typeof obj.maxY === "number" &&
+            obj.minX < obj.maxX &&
+            obj.minY < obj.maxY
+          )
+        })
       ) {
         setCellContents(parsedCells)
       } else {
@@ -187,7 +190,10 @@ const App: React.FC = () => {
         )
       }
     } catch (error) {
-      alert("Error parsing CellContents JSON: " + (error as Error).message)
+      alert(
+        "Error parsing CellContents JSON: " +
+          (error instanceof Error ? error.message : String(error)),
+      )
     }
   }
 
@@ -203,17 +209,20 @@ const App: React.FC = () => {
       const parsedLines = eval(`(${pastedBoundariesJsonInput})`) // Attempt to parse using eval
       if (
         Array.isArray(parsedLines) &&
-        parsedLines.every(
-          (l: any) =>
-            typeof l.start === "object" &&
-            l.start !== null &&
-            typeof l.start.x === "number" &&
-            typeof l.start.y === "number" &&
-            typeof l.end === "object" &&
-            l.end !== null &&
-            typeof l.end.x === "number" &&
-            typeof l.end.y === "number",
-        )
+        parsedLines.every((l: unknown) => {
+          if (typeof l !== "object" || l === null) return false
+          const obj = l as Record<string, unknown>
+          return (
+            typeof obj.start === "object" &&
+            obj.start !== null &&
+            typeof (obj.start as Record<string, unknown>).x === "number" &&
+            typeof (obj.start as Record<string, unknown>).y === "number" &&
+            typeof obj.end === "object" &&
+            obj.end !== null &&
+            typeof (obj.end as Record<string, unknown>).x === "number" &&
+            typeof (obj.end as Record<string, unknown>).y === "number"
+          )
+        })
       ) {
         setPastedBoundaries(parsedLines)
       } else {
@@ -224,7 +233,10 @@ const App: React.FC = () => {
         // setPastedBoundaries([]);
       }
     } catch (error) {
-      alert("Error parsing Pasted Boundaries JSON: " + (error as Error).message)
+      alert(
+        "Error parsing Pasted Boundaries JSON: " +
+          (error instanceof Error ? error.message : String(error)),
+      )
       // Optionally clear or keep previous valid state:
       // setPastedBoundaries([]);
     }

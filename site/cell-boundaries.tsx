@@ -3,7 +3,7 @@ import { calculateCellBoundaries } from "../lib/calculateCellBoundaries"
 
 // Type definitions
 interface CellContent {
-  cellId: string
+  cellId?: string
   x: number
   y: number
   width: number
@@ -276,10 +276,10 @@ const CellBoundariesVisualization = () => {
 
     results.mergedRectGroups.forEach((group, groupIndex) => {
       const colorClass =
-        mergedRectGroupColors[groupIndex % mergedRectGroupColors.length]
+        mergedRectGroupColors[groupIndex % mergedRectGroupColors.length]!
       group.forEach((cellInGroup) => {
         // cellInGroup has cellId
-        map.set(cellInGroup.cellId, colorClass)
+        map.set(cellInGroup.cellId!, colorClass)
       })
     })
     return map
@@ -343,18 +343,21 @@ const CellBoundariesVisualization = () => {
     setNextId((prev) => prev + 1)
   }
 
-  const handleCellMouseDown = (index: number, event: React.MouseEvent) => {
+  const handleCellMouseDown = (
+    index: number,
+    event: React.MouseEvent<HTMLElement>,
+  ) => {
     event.preventDefault()
-    const cellElement = event.currentTarget as HTMLElement
-    const containerElement = cellElement.offsetParent as HTMLElement
+    const containerElement = event.currentTarget.offsetParent
 
-    if (!containerElement) {
+    if (!(containerElement instanceof HTMLElement)) {
       console.error("Draggable item's container not found. Cannot start drag.")
       return
     }
 
     const containerRect = containerElement.getBoundingClientRect()
-    const cell = cellContents[index] // cell is {x, y, width, height} relative to container
+    const cell = cellContents[index]
+    if (!cell) return
 
     setDraggingCellIndex(index)
     setDragStartOffset({
@@ -364,13 +367,11 @@ const CellBoundariesVisualization = () => {
     document.body.style.cursor = "grabbing"
   }
 
-  const handleContainerMouseMove = (event: React.MouseEvent) => {
+  const handleContainerMouseMove = (event: React.MouseEvent<HTMLElement>) => {
     if (draggingCellIndex === null || !dragStartOffset) return
     event.preventDefault()
 
-    const containerRect = (
-      event.currentTarget as HTMLElement
-    ).getBoundingClientRect()
+    const containerRect = event.currentTarget.getBoundingClientRect()
 
     let newX = event.clientX - dragStartOffset.x - containerRect.left
     let newY = event.clientY - dragStartOffset.y - containerRect.top

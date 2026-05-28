@@ -1,4 +1,5 @@
 import type { CellContent, Line, Vec2 } from "./types"
+export type { CellContent, Line } from "./types"
 import { calculateCellBoundaries as calculateCellBoundariesDebug } from "./calculateCellBoundaries"
 import { mergeAlignedSegments } from "./mergeAlignedSegments"
 export { computeBoundsFromCellContents } from "./computeBoundsFromCellContents"

@@ -2,6 +2,16 @@ import type { Point, Midline, CellContent } from "./internalTypes"
 
 export const POINT_COMPARISON_TOLERANCE = 0.001
 
+export const pairs = <T>(arr: T[]): [T, T][] => {
+  const result: [T, T][] = []
+  for (let i = 0; i + 1 < arr.length; i++) {
+    const a = arr[i]
+    const b = arr[i + 1]
+    if (a !== undefined && b !== undefined) result.push([a, b])
+  }
+  return result
+}
+
 export const snapToGrid = (value: number, gridSize: number = 25) =>
   Math.round(value / gridSize) * gridSize
 

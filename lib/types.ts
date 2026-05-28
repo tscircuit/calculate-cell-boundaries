@@ -1,5 +1,5 @@
 export interface CellContent {
-  cellId: string
+  cellId?: string
   minX: number
   minY: number
   maxX: number
