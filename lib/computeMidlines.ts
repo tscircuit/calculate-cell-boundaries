@@ -8,11 +8,8 @@ export const computeMidlines = (
   const midlines: Midline[] = []
   let midlineId = 0
 
-  for (let i = 0; i < cellContents.length; i++) {
-    for (let j = i + 1; j < cellContents.length; j++) {
-      const cell1 = cellContents[i]
-      const cell2 = cellContents[j]
-
+  for (const [i, cell1] of cellContents.entries()) {
+    for (const cell2 of cellContents.slice(i + 1)) {
       const cell1Right = cell1.x + cell1.width
       const cell2Right = cell2.x + cell2.width
       const cell1Bottom = cell1.y + cell1.height

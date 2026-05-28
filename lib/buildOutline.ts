@@ -13,10 +13,8 @@ export const buildOutline = (
 
   const segMap = new Map<string, { start: Point; end: Point }>()
 
-  for (let i = 0; i < workRects.length; i++) {
-    const a = workRects[i]
-    for (let j = i + 1; j < workRects.length; j++) {
-      const b = workRects[j]
+  for (const [i, a] of workRects.entries()) {
+    for (const b of workRects.slice(i + 1)) {
       if (a.groupId === b.groupId) continue
 
       const aRight = a.x + a.width

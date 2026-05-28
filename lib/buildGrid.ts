@@ -1,5 +1,5 @@
 import type { Line, CellContent } from "./internalTypes"
-import { lineIntersectsRectangle } from "./utils"
+import { lineIntersectsRectangle, pairs } from "./utils"
 import { rectsOverlap } from "./rectUtils"
 
 export const buildGrid = (
@@ -37,10 +37,10 @@ export const buildGrid = (
   const cellContainingRects: CellContent[] = []
 
   cellContents.forEach((cell) => {
-    const minXGrid = xs[0]
-    const maxXGrid = xs[xs.length - 1]
-    const minYGrid = ys[0]
-    const maxYGrid = ys[ys.length - 1]
+    const minXGrid = xs.at(0) ?? 0
+    const maxXGrid = xs.at(-1) ?? containerWidth
+    const minYGrid = ys.at(0) ?? 0
+    const maxYGrid = ys.at(-1) ?? containerHeight
 
     let left = xs.filter((v) => v <= cell.x).pop()
     if (left === undefined) left = minXGrid
@@ -68,14 +68,10 @@ export const buildGrid = (
   const gridRects: CellContent[] = []
   let gridRectId = 0
 
-  for (let xi = 0; xi < xs.length - 1; xi++) {
-    const x0 = xs[xi]
-    const x1 = xs[xi + 1]
+  for (const [x0, x1] of pairs(xs)) {
     if (x1 - x0 <= 0) continue
 
-    for (let yi = 0; yi < ys.length - 1; yi++) {
-      const y0 = ys[yi]
-      const y1 = ys[yi + 1]
+    for (const [y0, y1] of pairs(ys)) {
       if (y1 - y0 <= 0) continue
 
       const candidate: CellContent = {

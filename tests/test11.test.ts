@@ -24,10 +24,13 @@ const scene = {
   ],
 }
 
-test("test11", () => {
-  const boundaries = calculateCellBoundaries(scene.cellContents)
-
-  expect(boundaries).toEqual(
+test("test11", async () => {
+  const lines = calculateCellBoundaries(scene.cellContents)
+  await expect({
+    lines,
+    cellContents: scene.cellContents,
+  }).toMatchCellBoundariesSnapshot(import.meta.path)
+  expect(lines).toEqual(
     [
       {
         start: {

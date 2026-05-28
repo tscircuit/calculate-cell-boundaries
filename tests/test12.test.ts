@@ -30,11 +30,14 @@ const scene = {
   ],
 }
 
-test("test12", () => {
-  const boundaries = calculateCellBoundaries(scene.cellContents)
-  boundaries.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
-
-  expect(boundaries).toEqual(
+test("test12", async () => {
+  const lines = calculateCellBoundaries(scene.cellContents)
+  await expect({
+    lines,
+    cellContents: scene.cellContents,
+  }).toMatchCellBoundariesSnapshot(import.meta.path)
+  lines.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
+  expect(lines).toEqual(
     [
       {
         start: {

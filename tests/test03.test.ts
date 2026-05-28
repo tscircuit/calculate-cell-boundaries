@@ -24,10 +24,13 @@ const scene = {
   ],
 }
 
-test("test03", () => {
-  const boundaries = calculateCellBoundaries(scene.cellContents)
-
-  // expect(boundaries).toMatchInlineSnapshot(`
+test("test03", async () => {
+  const lines = calculateCellBoundaries(scene.cellContents)
+  await expect({
+    lines,
+    cellContents: scene.cellContents,
+  }).toMatchCellBoundariesSnapshot(import.meta.path)
+  // expect(lines).toMatchInlineSnapshot(`
   //   [
   //     {
   //       "end": {
@@ -62,7 +65,7 @@ test("test03", () => {
   //   ]
   // `)
 
-  expect(boundaries).toEqual(
+  expect(lines).toEqual(
     [
       {
         start: { x: 150, y: 0 },

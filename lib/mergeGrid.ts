@@ -113,7 +113,8 @@ export const mergeGridRects = (
         keepProcessing = true
 
         if (neighbours.length === 1) {
-          currentRectState.groupId = neighbours[0].groupId
+          const firstNeighbour = neighbours.at(0)
+          if (firstNeighbour) currentRectState.groupId = firstNeighbour.groupId
         } else {
           let bestGroupId = null
           let minDistanceToOriginalCell = Infinity
@@ -121,6 +122,7 @@ export const mergeGridRects = (
             if (neighbour.groupId === null) continue
 
             const originalCellForGroup = cellContents[neighbour.groupId]
+            if (!originalCellForGroup) continue
             const distance = edgeToEdgeDistance(
               currentRectState,
               originalCellForGroup,
@@ -155,6 +157,7 @@ export const mergeGridRects = (
       .filter((r) => r.merged && r.groupId === idx)
       .map(({ merged, groupId, ...plain }) => plain)
     const cellRect = cellContents[idx]
+    if (!cellRect) return
     mergedRectGroups.push([
       contRect,
       cellRect,

@@ -47,55 +47,53 @@ export const mergeAlignedSegments = (segments: Line[]): Line[] => {
   // Merge horizontal segments
   const horizontalByY = new Map<number, Line[]>()
   for (const seg of horizontalSegments) {
-    if (!horizontalByY.has(seg.start.y)) {
-      horizontalByY.set(seg.start.y, [])
-    }
-    horizontalByY.get(seg.start.y)!.push(seg)
+    const bucket = horizontalByY.get(seg.start.y) ?? []
+    bucket.push(seg)
+    horizontalByY.set(seg.start.y, bucket)
   }
 
   for (const [, segs] of horizontalByY) {
-    if (segs.length === 0) continue
     segs.sort((a, b) => a.start.x - b.start.x)
-
-    let currentMerged = { ...segs[0] }
-    for (let i = 1; i < segs.length; i++) {
-      const nextSeg = segs[i]
-      // Check for connection or overlap: next segment starts at or before current merged segment ends
-      if (nextSeg.start.x <= currentMerged.end.x) {
-        currentMerged.end.x = Math.max(currentMerged.end.x, nextSeg.end.x)
+    let currentMerged: Line | undefined
+    for (const seg of segs) {
+      if (!currentMerged) {
+        currentMerged = { ...seg }
+        continue
+      }
+      if (seg.start.x <= currentMerged.end.x) {
+        currentMerged.end.x = Math.max(currentMerged.end.x, seg.end.x)
       } else {
         mergedSegments.push(currentMerged)
-        currentMerged = { ...nextSeg }
+        currentMerged = { ...seg }
       }
     }
-    mergedSegments.push(currentMerged)
+    if (currentMerged) mergedSegments.push(currentMerged)
   }
 
   // Merge vertical segments
   const verticalByX = new Map<number, Line[]>()
   for (const seg of verticalSegments) {
-    if (!verticalByX.has(seg.start.x)) {
-      verticalByX.set(seg.start.x, [])
-    }
-    verticalByX.get(seg.start.x)!.push(seg)
+    const bucket = verticalByX.get(seg.start.x) ?? []
+    bucket.push(seg)
+    verticalByX.set(seg.start.x, bucket)
   }
 
   for (const [, segs] of verticalByX) {
-    if (segs.length === 0) continue
     segs.sort((a, b) => a.start.y - b.start.y)
-
-    let currentMerged = { ...segs[0] }
-    for (let i = 1; i < segs.length; i++) {
-      const nextSeg = segs[i]
-      // Check for connection or overlap: next segment starts at or before current merged segment ends
-      if (nextSeg.start.y <= currentMerged.end.y) {
-        currentMerged.end.y = Math.max(currentMerged.end.y, nextSeg.end.y)
+    let currentMerged: Line | undefined
+    for (const seg of segs) {
+      if (!currentMerged) {
+        currentMerged = { ...seg }
+        continue
+      }
+      if (seg.start.y <= currentMerged.end.y) {
+        currentMerged.end.y = Math.max(currentMerged.end.y, seg.end.y)
       } else {
         mergedSegments.push(currentMerged)
-        currentMerged = { ...nextSeg }
+        currentMerged = { ...seg }
       }
     }
-    mergedSegments.push(currentMerged)
+    if (currentMerged) mergedSegments.push(currentMerged)
   }
 
   return mergedSegments

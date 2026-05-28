@@ -3,13 +3,13 @@ import { lineIntersection } from "./utils"
 
 export const computeIntersections = (midlines: Midline[]): Intersection[] => {
   const intersections: Intersection[] = []
-  for (let i = 0; i < midlines.length; i++) {
-    for (let j = i + 1; j < midlines.length; j++) {
-      const intersection = lineIntersection(midlines[i], midlines[j])
+  for (const [i, midlineA] of midlines.entries()) {
+    for (const midlineB of midlines.slice(i + 1)) {
+      const intersection = lineIntersection(midlineA, midlineB)
       if (intersection) {
         intersections.push({
           point: intersection,
-          midlineIds: [midlines[i].id, midlines[j].id],
+          midlineIds: [midlineA.id, midlineB.id],
         })
       }
     }
