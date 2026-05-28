@@ -28,10 +28,7 @@ export const collapseHorizontalSteps = (
       verticalIndex++
     ) {
       const vertical = collapsed[verticalIndex]
-      if (
-        !vertical ||
-        Math.abs(vertical.start.x - vertical.end.x) >= TOL
-      ) {
+      if (!vertical || Math.abs(vertical.start.x - vertical.end.x) >= TOL) {
         continue
       }
 

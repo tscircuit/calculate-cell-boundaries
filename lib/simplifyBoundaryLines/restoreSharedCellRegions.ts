@@ -9,9 +9,9 @@ export const restoreSharedCellRegions = (
   cellContents: CellContent[],
 ) => {
   let restored = lines
+  let currentShared = sharedCellRegionCount(restored, cellContents)
 
-  while (sharedCellRegionCount(restored, cellContents) > 0) {
-    const currentShared = sharedCellRegionCount(restored, cellContents)
+  while (currentShared > 0) {
     const best = originalLines
       .map((line) => {
         const candidate = mergeAlignedSegments([...restored, line])
@@ -31,6 +31,7 @@ export const restoreSharedCellRegions = (
 
     if (!best) break
     restored = best.lines
+    currentShared = best.shared
   }
 
   return restored

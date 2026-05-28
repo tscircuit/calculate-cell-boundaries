@@ -13,6 +13,7 @@ export const alignParallelLinesAcrossConnectors = (
 
   while (changed) {
     changed = false
+    const currentComponents = connectedComponentCount(aligned)
 
     for (let moveIndex = 0; moveIndex < aligned.length; moveIndex++) {
       const lineToMove = aligned[moveIndex]
@@ -114,9 +115,7 @@ export const alignParallelLinesAcrossConnectors = (
         const candidate = aligned.map((line, index) =>
           index === moveIndex ? movedLine : line,
         )
-        if (
-          connectedComponentCount(candidate) > connectedComponentCount(aligned)
-        ) {
+        if (connectedComponentCount(candidate) > currentComponents) {
           continue
         }
 

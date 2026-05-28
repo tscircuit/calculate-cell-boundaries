@@ -1,5 +1,10 @@
 import type { Line, CellContent } from "../types"
-import { TOL, pointsEqual, lineContainsPoint, lineWithEndpoint } from "./primitives"
+import {
+  TOL,
+  pointsEqual,
+  lineContainsPoint,
+  lineWithEndpoint,
+} from "./primitives"
 import { candidateIsValid } from "./validation"
 import { connectedComponentCount } from "./connectivity"
 
@@ -12,6 +17,7 @@ export const removeRedundantParallelBridges = (
 
   while (changed) {
     changed = false
+    const currentComponents = connectedComponentCount(reduced)
 
     for (let bridgeIndex = 0; bridgeIndex < reduced.length; bridgeIndex++) {
       const bridge = reduced[bridgeIndex]
@@ -112,9 +118,7 @@ export const removeRedundantParallelBridges = (
         const candidate = reduced
           .map((line, index) => updates.get(index) ?? line)
           .filter((_, index) => index !== bridgeIndex)
-        if (
-          connectedComponentCount(candidate) > connectedComponentCount(reduced)
-        ) {
+        if (connectedComponentCount(candidate) > currentComponents) {
           continue
         }
 

@@ -34,11 +34,7 @@ export const connectDanglingEndpoints = (
         const lineIsVertical = Math.abs(line.start.x - line.end.x) < TOL
         const lineIsHorizontal = Math.abs(line.start.y - line.end.y) < TOL
 
-        for (
-          let otherIndex = 0;
-          otherIndex < connected.length;
-          otherIndex++
-        ) {
+        for (let otherIndex = 0; otherIndex < connected.length; otherIndex++) {
           if (lineIndex === otherIndex) continue
           const other = connected[otherIndex]
           if (!other) continue

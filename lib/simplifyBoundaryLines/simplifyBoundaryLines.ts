@@ -9,8 +9,7 @@ import { restoreMissingSeparators } from "./restoreMissingSeparators"
 import { extendLinesToImproveCellRegions } from "./extendLinesToImproveCellRegions"
 import { restoreSharedCellRegions } from "./restoreSharedCellRegions"
 import { removeRedundantSeparators } from "./removeRedundantSeparators"
-import { collapseVerticalDoglegs } from "./collapseVerticalDoglegs"
-import { collapseHorizontalSteps } from "./collapseHorizontalSteps"
+import { collapseSteps } from "./collapseVerticalDoglegs"
 import { snapLongHorizontalsToNearbyOriginals } from "./snapLongHorizontalsToNearbyOriginals"
 import { extendVerticalsToNearbyCellEdges } from "./extendVerticalsToNearbyCellEdges"
 
@@ -37,10 +36,9 @@ export const simplifyBoundaryLines = (
   const finalConnected = connectDanglingEndpoints(finalReduced, cellContents, {
     preserveOriginalSpan: true,
   })
-  const collapsed = collapseVerticalDoglegs(finalConnected, cellContents)
-  const stepsCollapsed = collapseHorizontalSteps(collapsed, cellContents)
+  const collapsed = collapseSteps(finalConnected, cellContents)
   const snapped = snapLongHorizontalsToNearbyOriginals(
-    stepsCollapsed,
+    collapsed,
     lines,
     cellContents,
   )
@@ -48,7 +46,10 @@ export const simplifyBoundaryLines = (
   const finalConnected2 = connectDanglingEndpoints(edgeExtended, cellContents, {
     preserveOriginalSpan: true,
   })
-  const livePairs = separatedCellPairs(finalConnected2, cellContents)
 
-  return trimDanglingOverhangs(finalConnected2, cellContents, livePairs)
+  return trimDanglingOverhangs(
+    finalConnected2,
+    cellContents,
+    separatedCellPairs(finalConnected2, cellContents),
+  )
 }

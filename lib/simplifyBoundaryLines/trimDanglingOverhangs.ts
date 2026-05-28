@@ -55,6 +55,7 @@ export const trimDanglingOverhangs = (
   while (changed) {
     changed = false
     const degrees = pointDegrees(trimmed)
+    const currentComponents = connectedComponentCount(trimmed)
 
     for (let lineIndex = 0; lineIndex < trimmed.length; lineIndex++) {
       const line = trimmed[lineIndex]
@@ -95,9 +96,7 @@ export const trimDanglingOverhangs = (
         const candidate = trimmed.map((item, index) =>
           index === lineIndex ? candidateLine : item,
         )
-        if (
-          connectedComponentCount(candidate) > connectedComponentCount(trimmed)
-        ) {
+        if (connectedComponentCount(candidate) > currentComponents) {
           continue
         }
         if (

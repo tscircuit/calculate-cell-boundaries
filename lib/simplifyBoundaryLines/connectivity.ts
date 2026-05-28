@@ -1,4 +1,4 @@
-import type { Line, Vec2, CellContent } from "../types"
+import type { Line, Vec2 } from "../types"
 import {
   TOL,
   pointKey,
@@ -6,7 +6,6 @@ import {
   isZeroLength,
   lineContainsPoint,
 } from "./primitives"
-import { lineSeparatesCells } from "./cellSeparation"
 
 export const connectedComponentCount = (lines: Line[]) => {
   const adjacency = new Map<string, Set<string>>()
@@ -91,50 +90,4 @@ export const connectedComponentCount = (lines: Line[]) => {
   }
 
   return count
-}
-
-export const pruneNonSeparatingLeaves = (
-  lines: Line[],
-  cellContents: CellContent[],
-): Line[] => {
-  let pruned = lines
-  let changed = true
-
-  while (changed) {
-    changed = false
-    const componentCountBefore = connectedComponentCount(pruned)
-    const degrees = new Map<string, number>()
-
-    for (const line of pruned) {
-      degrees.set(
-        pointKey(line.start),
-        (degrees.get(pointKey(line.start)) ?? 0) + 1,
-      )
-      degrees.set(
-        pointKey(line.end),
-        (degrees.get(pointKey(line.end)) ?? 0) + 1,
-      )
-    }
-
-    for (let i = 0; i < pruned.length; i++) {
-      const line = pruned[i]
-      if (!line) continue
-      if (lineSeparatesCells(line, cellContents)) continue
-      if (
-        degrees.get(pointKey(line.start)) !== 1 &&
-        degrees.get(pointKey(line.end)) !== 1
-      ) {
-        continue
-      }
-
-      const candidate = pruned.filter((_, index) => index !== i)
-      if (connectedComponentCount(candidate) !== componentCountBefore) continue
-
-      pruned = candidate
-      changed = true
-      break
-    }
-  }
-
-  return pruned
 }
