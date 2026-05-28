@@ -35,32 +35,22 @@ test("test09", async () => {
     [
       {
         start: {
+          x: 275,
+          y: 50,
+        },
+        end: {
+          x: 275,
+          y: 225,
+        },
+      },
+      {
+        start: {
           x: 150,
           y: 225,
         },
         end: {
           x: 400,
           y: 225,
-        },
-      },
-      {
-        start: {
-          x: 275,
-          y: 50,
-        },
-        end: {
-          x: 275,
-          y: 200,
-        },
-      },
-      {
-        start: {
-          x: 275,
-          y: 200,
-        },
-        end: {
-          x: 400,
-          y: 200,
         },
       },
     ].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),

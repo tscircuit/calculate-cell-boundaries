@@ -4,10 +4,7 @@
     <polyline data-points="150,225 400,225" data-type="line" data-label="" points="86.66666666666663,273.33333333333326 553.3333333333333,273.33333333333326" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
   </g>
   <g>
-    <polyline data-points="275,50 275,200" data-type="line" data-label="" points="320,599.9999999999999 320,319.99999999999994" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
-  </g>
-  <g>
-    <polyline data-points="275,200 400,200" data-type="line" data-label="" points="320,319.99999999999994 553.3333333333333,319.99999999999994" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
+    <polyline data-points="275,50 275,225" data-type="line" data-label="" points="320,599.9999999999999 320,273.33333333333326" fill="none" stroke="#000" stroke-width="3.7333333333333334" />
   </g>
   <g>
     <rect data-type="rect" data-label="" data-x="200" data-y="150" x="86.66666666666663" y="319.99999999999994" width="186.66666666666669" height="186.66666666666669" fill="rgba(255, 165, 0, 0.4)" stroke="#c87000" stroke-width="0.5357142857142857" />
