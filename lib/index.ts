@@ -2,6 +2,7 @@ import type { CellContent, Line, Vec2 } from "./types"
 export type { CellContent, Line } from "./types"
 import { calculateCellBoundaries as calculateCellBoundariesDebug } from "./calculateCellBoundaries"
 import { mergeAlignedSegments } from "./mergeAlignedSegments"
+import { simplifyBoundaryLines } from "./simplifyBoundaryLines/simplifyBoundaryLines"
 export { computeBoundsFromCellContents } from "./computeBoundsFromCellContents"
 
 const pointSortKey = (A: Vec2, B: Vec2) => {
@@ -29,8 +30,11 @@ export const calculateCellBoundaries = (
   }))
 
   const mergedOutlineLines = mergeAlignedSegments(mappedLines)
+  const simplifiedOutlineLines = mergeAlignedSegments(
+    simplifyBoundaryLines(mergedOutlineLines, inputCellContents),
+  )
 
-  return mergedOutlineLines
+  return simplifiedOutlineLines
     .map((a) => ({
       start: pointSortKey(a.start, a.end) < 0 ? a.start : a.end,
       end: pointSortKey(a.start, a.end) < 0 ? a.end : a.start,
