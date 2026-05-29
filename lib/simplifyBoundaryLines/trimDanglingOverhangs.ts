@@ -7,13 +7,13 @@ import {
   lineWithEndpoint,
   pointDegrees,
   pointOnAnyCellEdge,
+  candidateIsValid,
 } from "./primitives"
-import { candidateIsValid } from "./validation"
 import {
   lineSeparatesCells,
   preservesSeparatedCellPairs,
-} from "./cellSeparation"
-import { connectedComponentCount } from "./connectivity"
+  connectedComponentCount,
+} from "./cellUtils"
 
 const intersectionPointsOnLine = (line: Line, lines: Line[]) => {
   const points: Vec2[] = []

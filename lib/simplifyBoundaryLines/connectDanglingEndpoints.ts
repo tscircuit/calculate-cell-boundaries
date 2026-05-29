@@ -7,8 +7,8 @@ import {
   lineWithEndpoint,
   pathLength,
   pointDegrees,
+  candidateIsValid,
 } from "./primitives"
-import { candidateIsValid } from "./validation"
 
 export const connectDanglingEndpoints = (
   lines: Line[],

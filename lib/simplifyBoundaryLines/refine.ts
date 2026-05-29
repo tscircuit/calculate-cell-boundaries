@@ -1,15 +1,23 @@
 import type { Line, CellContent } from "../types"
 import {
   TOL,
+  pointKey,
+  pathLength,
   lineContainsPoint,
   isZeroLength,
   endpointOnLineAtY,
   endpointOnLineAtX,
   lineOtherEndpoint,
+  lineWithEndpoint,
+  pointDegrees,
+  candidateIsValid,
 } from "./primitives"
-import { candidateIsValid } from "./validation"
-import { sharedCellRegionCount } from "./cellRegions"
+import { sharedCellRegionCount, separatedCellPairs } from "./cellUtils"
+import { connectDanglingEndpoints } from "./connectDanglingEndpoints"
+import { trimDanglingOverhangs } from "./trimDanglingOverhangs"
 import { mergeAlignedSegments } from "../mergeAlignedSegments"
+
+// --- collapseSteps (vertical doglegs + horizontal steps) ---
 
 const collapseVerticalDoglegs = (
   lines: Line[],
@@ -208,11 +216,155 @@ const collapseHorizontalSteps = (
   return collapsed
 }
 
-export const collapseSteps = (
-  lines: Line[],
-  cellContents: CellContent[],
-): Line[] =>
+const collapseSteps = (lines: Line[], cellContents: CellContent[]): Line[] =>
   collapseHorizontalSteps(
     collapseVerticalDoglegs(lines, cellContents),
     cellContents,
   )
+
+// --- snapLongHorizontalsToNearbyOriginals ---
+
+const snapLongHorizontalsToNearbyOriginals = (
+  lines: Line[],
+  originalLines: Line[],
+  cellContents: CellContent[],
+): Line[] => {
+  let snapped = lines
+  const originalYLengths = new Map<number, number>()
+  for (const line of originalLines) {
+    if (Math.abs(line.start.y - line.end.y) >= TOL) continue
+    originalYLengths.set(
+      line.start.y,
+      (originalYLengths.get(line.start.y) ?? 0) + pathLength([line]),
+    )
+  }
+
+  for (let i = 0; i < snapped.length; i++) {
+    const line = snapped[i]
+    if (!line || Math.abs(line.start.y - line.end.y) >= TOL) continue
+    if (pathLength([line]) < 500) continue
+
+    const currentY = line.start.y
+    const candidateY = [...originalYLengths]
+      .filter(([y]) => y < currentY - TOL && currentY - y <= 15)
+      .sort(
+        (a, b) =>
+          b[1] - a[1] || Math.abs(currentY - a[0]) - Math.abs(currentY - b[0]),
+      )
+      .map(([y]) => y)
+      .at(0)
+    if (candidateY === undefined) continue
+
+    const candidateLine = {
+      start: { x: line.start.x, y: candidateY },
+      end: { x: line.end.x, y: candidateY },
+    }
+    if (!candidateIsValid([candidateLine], cellContents)) continue
+
+    const candidate = snapped.map((item, index) =>
+      index === i ? candidateLine : item,
+    )
+    const connectedCandidate = connectDanglingEndpoints(
+      candidate,
+      cellContents,
+      { preserveOriginalSpan: true },
+    )
+    if (!candidateIsValid(connectedCandidate, cellContents)) continue
+    if (
+      sharedCellRegionCount(connectedCandidate, cellContents) >
+      sharedCellRegionCount(snapped, cellContents)
+    ) {
+      continue
+    }
+
+    snapped = connectedCandidate
+  }
+
+  return snapped
+}
+
+// --- extendVerticalsToNearbyCellEdges ---
+
+const extendVerticalsToNearbyCellEdges = (
+  lines: Line[],
+  cellContents: CellContent[],
+): Line[] => {
+  let extended = lines
+  let changed = true
+
+  while (changed) {
+    changed = false
+    const degrees = pointDegrees(extended)
+
+    for (let i = 0; i < extended.length; i++) {
+      const line = extended[i]
+      if (!line || Math.abs(line.start.x - line.end.x) >= TOL) continue
+
+      for (const endpointName of ["start", "end"] as const) {
+        const endpoint = line[endpointName]
+        if (degrees.get(pointKey(endpoint)) !== 1) continue
+
+        const edgeY = cellContents
+          .flatMap((cell) =>
+            endpoint.x > cell.minX + TOL && endpoint.x < cell.maxX - TOL
+              ? [cell.minY, cell.maxY]
+              : [],
+          )
+          .filter((y) => {
+            const distance = Math.abs(y - endpoint.y)
+            return distance > TOL && distance <= 15
+          })
+          .sort(
+            (a, b) =>
+              Math.abs(a - endpoint.y) - Math.abs(b - endpoint.y) || a - b,
+          )
+          .at(0)
+        if (edgeY === undefined) continue
+
+        const candidateLine = lineWithEndpoint(line, endpointName, {
+          x: endpoint.x,
+          y: edgeY,
+        })
+        if (!lineContainsPoint(candidateLine, endpoint)) continue
+        if (!candidateIsValid([candidateLine], cellContents)) continue
+
+        extended = extended.map((item, index) =>
+          index === i ? candidateLine : item,
+        )
+        changed = true
+        break
+      }
+
+      if (changed) break
+    }
+  }
+
+  return extended
+}
+
+// --- refine phase ---
+
+export const refine = (
+  lines: Line[],
+  originalLines: Line[],
+  cellContents: CellContent[],
+): Line[] => {
+  const connected = connectDanglingEndpoints(lines, cellContents, {
+    preserveOriginalSpan: true,
+  })
+  const collapsed = collapseSteps(connected, cellContents)
+  const snapped = snapLongHorizontalsToNearbyOriginals(
+    collapsed,
+    originalLines,
+    cellContents,
+  )
+  const edgeExtended = extendVerticalsToNearbyCellEdges(snapped, cellContents)
+  const finalConnected = connectDanglingEndpoints(edgeExtended, cellContents, {
+    preserveOriginalSpan: true,
+  })
+  return trimDanglingOverhangs(
+    finalConnected,
+    cellContents,
+    separatedCellPairs(finalConnected, cellContents),
+  )
+}
