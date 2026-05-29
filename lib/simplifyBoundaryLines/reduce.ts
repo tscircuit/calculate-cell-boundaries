@@ -100,10 +100,6 @@ const simplifyChains = (lines: Line[], cellContents: CellContent[]): Line[] => {
   const visitedEdges = new Set<string>()
   const simplified: Line[] = []
 
-  const emitChain = (chain: Vec2[]) => {
-    simplified.push(...bestReplacementForChain(chain, cellContents))
-  }
-
   for (const [startKey, neighbors] of adjacency) {
     if (neighbors.size === 2) continue
 
@@ -140,7 +136,7 @@ const simplifyChains = (lines: Line[], cellContents: CellContent[]): Line[] => {
         currentKey = nextKey
       }
 
-      emitChain(chain)
+      simplified.push(...bestReplacementForChain(chain, cellContents))
     }
   }
 
@@ -174,6 +170,7 @@ const alignParallelLinesAcrossConnectors = (
   while (changed) {
     changed = false
     const currentComponents = connectedComponentCount(aligned)
+    const currentMergedLength = mergeAlignedSegments(aligned).length
 
     for (let moveIndex = 0; moveIndex < aligned.length; moveIndex++) {
       const lineToMove = aligned[moveIndex]
@@ -280,8 +277,7 @@ const alignParallelLinesAcrossConnectors = (
         }
 
         const mergedCandidate = mergeAlignedSegments(candidate)
-        const currentMerged = mergeAlignedSegments(aligned)
-        if (mergedCandidate.length >= currentMerged.length) continue
+        if (mergedCandidate.length >= currentMergedLength) continue
 
         aligned = mergedCandidate
         changed = true

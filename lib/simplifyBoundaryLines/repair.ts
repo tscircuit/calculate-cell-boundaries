@@ -20,26 +20,22 @@ const restoreMissingSeparators = (
 ) => {
   let restored = lines
 
-  while (!preservesSeparatedCellPairs(restored, cellContents, requiredPairs)) {
+  while (true) {
     const actualPairs = separatedCellPairs(restored, cellContents)
-    const missingPair = [...requiredPairs].find(
-      (pair) => !actualPairs.has(pair),
-    )
+    const missingPair = [...requiredPairs].find((pair) => !actualPairs.has(pair))
     if (!missingPair) break
 
-    const parts = missingPair.split(":")
-    const aIndex = Number(parts[0])
-    const bIndex = Number(parts[1])
-    const a = cellContents[aIndex]
-    const b = cellContents[bIndex]
-    if (!a || !b) break
+    const [aStr, bStr] = missingPair.split(":")
+    const cellA = cellContents[Number(aStr)]
+    const cellB = cellContents[Number(bStr)]
+    if (!cellA || !cellB) break
 
     const replacement = originalLines
-      .filter((line) => lineSeparatesCellPair(line, a, b))
+      .filter((line) => lineSeparatesCellPair(line, cellA, cellB))
       .sort(
-        (lineA, lineB) =>
-          pathLength([lineA]) - pathLength([lineB]) ||
-          JSON.stringify(lineA).localeCompare(JSON.stringify(lineB)),
+        (a, b) =>
+          pathLength([a]) - pathLength([b]) ||
+          JSON.stringify(a).localeCompare(JSON.stringify(b)),
       )
       .at(0)
 
