@@ -22,7 +22,9 @@ const restoreMissingSeparators = (
 
   while (true) {
     const actualPairs = separatedCellPairs(restored, cellContents)
-    const missingPair = [...requiredPairs].find((pair) => !actualPairs.has(pair))
+    const missingPair = [...requiredPairs].find(
+      (pair) => !actualPairs.has(pair),
+    )
     if (!missingPair) break
 
     const [aStr, bStr] = missingPair.split(":")
@@ -46,10 +48,11 @@ const restoreMissingSeparators = (
   return restored
 }
 
-// --- extendLinesToImproveCellRegions ---
+// --- fixSharedCellRegions ---
 
-const extendLinesToImproveCellRegions = (
+const fixSharedCellRegions = (
   lines: Line[],
+  originalLines: Line[],
   cellContents: CellContent[],
 ) => {
   let improved = lines
@@ -100,6 +103,10 @@ const extendLinesToImproveCellRegions = (
       }
     }
 
+    for (const line of originalLines) {
+      candidates.push([...improved, line])
+    }
+
     const best = candidates
       .map((candidate) => ({
         lines: mergeAlignedSegments(candidate),
@@ -120,42 +127,6 @@ const extendLinesToImproveCellRegions = (
   }
 
   return improved
-}
-
-// --- restoreSharedCellRegions ---
-
-const restoreSharedCellRegions = (
-  lines: Line[],
-  originalLines: Line[],
-  cellContents: CellContent[],
-) => {
-  let restored = lines
-  let currentShared = sharedCellRegionCount(restored, cellContents)
-
-  while (currentShared > 0) {
-    const best = originalLines
-      .map((line) => {
-        const candidate = mergeAlignedSegments([...restored, line])
-        return {
-          lines: candidate,
-          shared: sharedCellRegionCount(candidate, cellContents),
-        }
-      })
-      .filter((candidate) => candidate.shared < currentShared)
-      .sort(
-        (a, b) =>
-          a.shared - b.shared ||
-          a.lines.length - b.lines.length ||
-          pathLength(a.lines) - pathLength(b.lines),
-      )
-      .at(0)
-
-    if (!best) break
-    restored = best.lines
-    currentShared = best.shared
-  }
-
-  return restored
 }
 
 // --- removeRedundantSeparators ---
@@ -209,11 +180,6 @@ export const repairSeparators = (
     cellContents,
     requiredPairs,
   )
-  const extended = extendLinesToImproveCellRegions(restored, cellContents)
-  const partitioned = restoreSharedCellRegions(
-    extended,
-    originalLines,
-    cellContents,
-  )
-  return removeRedundantSeparators(partitioned, cellContents)
+  const fixed = fixSharedCellRegions(restored, originalLines, cellContents)
+  return removeRedundantSeparators(fixed, cellContents)
 }

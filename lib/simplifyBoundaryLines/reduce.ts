@@ -421,10 +421,7 @@ const removeRedundantParallelBridges = (
 
 // --- simplify phase ---
 
-export const simplify = (
-  lines: Line[],
-  cellContents: CellContent[],
-): Line[] => {
+export const reduce = (lines: Line[], cellContents: CellContent[]): Line[] => {
   const simplified = simplifyChains(lines, cellContents)
   const connected = connectDanglingEndpoints(simplified, cellContents)
   const aligned = alignParallelLinesAcrossConnectors(connected, cellContents)
