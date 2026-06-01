@@ -1,20 +1,11 @@
-import type { CellContent, Line, Vec2 } from "./types"
-export type { CellContent, Line } from "./types"
-import { calculateCellBoundaries as calculateCellBoundariesDebug } from "./calculateCellBoundaries"
-import { mergeAlignedSegments } from "./mergeAlignedSegments"
-export { computeBoundsFromCellContents } from "./computeBoundsFromCellContents"
-
-const pointSortKey = (A: Vec2, B: Vec2) => {
-  if (A.x !== B.x) {
-    return A.x - B.x
-  }
-  return A.y - B.y
-}
+import type { InputRect, Line } from "./types"
+export type { InputRect as CellContent, Line } from "./types"
+import { calculateCellBoundaries as _calculateCellBoundaries } from "./calculateCellBoundaries"
 
 export const calculateCellBoundaries = (
-  inputCellContents: Omit<CellContent, "cellId">[],
+  inputCellContents: Omit<InputRect, "cellId">[],
 ): Line[] => {
-  const { outlineLines: rawOutlineLines } = calculateCellBoundariesDebug(
+  return _calculateCellBoundaries(
     inputCellContents.map((c) => ({
       x: c.minX,
       y: c.minY,
@@ -22,20 +13,4 @@ export const calculateCellBoundaries = (
       height: c.maxY - c.minY,
     })),
   )
-
-  const mappedLines: Line[] = rawOutlineLines.map((l) => ({
-    start: { x: l.start.x, y: l.start.y },
-    end: { x: l.end.x, y: l.end.y },
-  }))
-
-  const mergedOutlineLines = mergeAlignedSegments(mappedLines)
-
-  return mergedOutlineLines
-    .map((a) => ({
-      start: pointSortKey(a.start, a.end) < 0 ? a.start : a.end,
-      end: pointSortKey(a.start, a.end) < 0 ? a.end : a.start,
-    }))
-    .sort((a, b) => {
-      return pointSortKey(a.start, b.start) || pointSortKey(a.end, b.end)
-    })
 }

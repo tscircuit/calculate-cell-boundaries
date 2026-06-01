@@ -7,15 +7,14 @@
   ],
   "type": "module",
   "scripts": {
+    "start": "cosmos",
     "build:lib": "tsdown --dts lib/index.ts --outdir dist",
-    "build:site": "bun build site/index.html --outdir site-build",
-    "vercel-build": "bun run build:site",
-    "start1": "bun run site/index.html",
-    "start2": "bun run site/index2.html",
+    "build:site": "cosmos-export",
     "format": "biome format --write .",
     "format:check": "biome format ."
   },
   "dependencies": {
+    "@tscircuit/solver-utils": "^0.0.19",
     "lucide-react": "^1.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -26,7 +25,9 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "bun-match-svg": "^0.0.11",
-    "graphics-debug": "^0.0.46",
+    "graphics-debug": "^0.0.76",
+    "react-cosmos": "^7.3.0",
+    "react-cosmos-plugin-vite": "^7.3.0",
     "tsdown": "^0.12.9"
   },
   "peerDependencies": {

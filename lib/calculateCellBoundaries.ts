@@ -1,25 +1,111 @@
-import { computeBoundsFromCellContents } from "./computeBoundsFromCellContents"
-import type { CellContent, Line } from "./internalTypes"
-import { computeMidlines } from "./computeMidlines"
-import { computeIntersections } from "./computeIntersections"
-import { computeSegments } from "./computeSegments"
-import { buildGrid } from "./buildGrid"
-import { mergeGridRects } from "./mergeGrid"
-import { buildOutline } from "./buildOutline"
-import { offsetLine, offsetRect } from "./rectUtils"
+import type { CellContent, Line, Point } from "./utils"
+import { offsetLine, computeBoundsFromCellContents } from "./utils"
+import { CellBoundariesPipeline } from "./solvers/CellBoundariesPipeline"
+
+const normalizeSegment = (segment: Line): Line => {
+  let { start, end } = segment
+  if (start.y === end.y && start.x > end.x) {
+    ;[start, end] = [
+      { x: end.x, y: start.y },
+      { x: start.x, y: end.y },
+    ]
+  } else if (start.x === end.x && start.y > end.y) {
+    ;[start, end] = [
+      { x: start.x, y: end.y },
+      { x: end.x, y: start.y },
+    ]
+  }
+  return { ...segment, start, end }
+}
+
+const mergeAlignedSegments = (segments: Line[]): Line[] => {
+  if (!segments || segments.length === 0) {
+    return []
+  }
+
+  const normalizedSegments = segments.map(normalizeSegment)
+
+  const horizontalSegments: Line[] = []
+  const verticalSegments: Line[] = []
+
+  for (const seg of normalizedSegments) {
+    if (seg.start.y === seg.end.y) {
+      horizontalSegments.push(seg)
+    } else if (seg.start.x === seg.end.x) {
+      verticalSegments.push(seg)
+    }
+  }
+
+  const mergedSegments: Line[] = []
+
+  const horizontalByY = new Map<number, Line[]>()
+  for (const seg of horizontalSegments) {
+    const bucket = horizontalByY.get(seg.start.y) ?? []
+    bucket.push(seg)
+    horizontalByY.set(seg.start.y, bucket)
+  }
+
+  for (const [, segs] of horizontalByY) {
+    segs.sort((a, b) => a.start.x - b.start.x)
+    let currentMerged: Line | undefined
+    for (const seg of segs) {
+      if (!currentMerged) {
+        currentMerged = { ...seg }
+        continue
+      }
+      if (seg.start.x <= currentMerged.end.x) {
+        currentMerged.end.x = Math.max(currentMerged.end.x, seg.end.x)
+      } else {
+        mergedSegments.push(currentMerged)
+        currentMerged = { ...seg }
+      }
+    }
+    if (currentMerged) mergedSegments.push(currentMerged)
+  }
+
+  const verticalByX = new Map<number, Line[]>()
+  for (const seg of verticalSegments) {
+    const bucket = verticalByX.get(seg.start.x) ?? []
+    bucket.push(seg)
+    verticalByX.set(seg.start.x, bucket)
+  }
+
+  for (const [, segs] of verticalByX) {
+    segs.sort((a, b) => a.start.y - b.start.y)
+    let currentMerged: Line | undefined
+    for (const seg of segs) {
+      if (!currentMerged) {
+        currentMerged = { ...seg }
+        continue
+      }
+      if (seg.start.y <= currentMerged.end.y) {
+        currentMerged.end.y = Math.max(currentMerged.end.y, seg.end.y)
+      } else {
+        mergedSegments.push(currentMerged)
+        currentMerged = { ...seg }
+      }
+    }
+    if (currentMerged) mergedSegments.push(currentMerged)
+  }
+
+  return mergedSegments
+}
+
+const pointSortKey = (A: Point, B: Point) =>
+  A.x !== B.x ? A.x - B.x : A.y - B.y
 
 export const calculateCellBoundaries = (
   inputCellContents: Omit<CellContent, "cellId">[],
   containerWidth?: number,
   containerHeight?: number,
 ) => {
-  const originalCellContents = inputCellContents.map((cellContent, index) => ({
-    ...cellContent,
-    cellId: `cell-${index}`,
+  const cellContents = inputCellContents.map((c, i) => ({
+    ...c,
+    cellId: `cell-${i}`,
   }))
 
-  const containerBounds = computeBoundsFromCellContents(
-    originalCellContents.map((c) => ({
+  const bounds = computeBoundsFromCellContents(
+    cellContents.map((c) => ({
       minX: c.x,
       minY: c.y,
       maxX: c.x + c.width,
@@ -27,53 +113,37 @@ export const calculateCellBoundaries = (
     })),
   )
 
-  const offsetX = containerBounds.minX
-  const offsetY = containerBounds.minY
+  const offsetX = bounds.minX
+  const offsetY = bounds.minY
+  containerWidth ??= bounds.maxX - bounds.minX
+  containerHeight ??= bounds.maxY - bounds.minY
 
-  containerWidth ??= containerBounds.maxX - containerBounds.minX
-  containerHeight ??= containerBounds.maxY - containerBounds.minY
-
-  const cellContents = originalCellContents.map((c) => ({
+  const normalizedCells = cellContents.map((c) => ({
     ...c,
     x: c.x - offsetX,
     y: c.y - offsetY,
   }))
 
-  const midlines = computeMidlines(
-    cellContents,
+  const pipeline = new CellBoundariesPipeline({
+    cellContents: normalizedCells,
     containerWidth,
     containerHeight,
-  )
+  })
+  pipeline.solve()
 
-  const intersections = computeIntersections(midlines)
+  const output = pipeline.getOutput()
 
-  const allSegments = computeSegments(midlines, intersections, cellContents)
+  const applyLineOffset = (l: Line) => offsetLine(l, offsetX, offsetY)
 
-  const { validSegments, cellContainingRects, gridRects } = buildGrid(
-    allSegments,
-    cellContents,
-    containerWidth,
-    containerHeight,
-  )
+  const rawOutlineLines = output.outlineLines.map(applyLineOffset)
+  const outlineLines = mergeAlignedSegments(rawOutlineLines)
+    .map((l) => ({
+      start: pointSortKey(l.start, l.end) < 0 ? l.start : l.end,
+      end: pointSortKey(l.start, l.end) < 0 ? l.end : l.start,
+    }))
+    .sort(
+      (a, b) => pointSortKey(a.start, b.start) || pointSortKey(a.end, b.end),
+    )
 
-  const { mergedRectGroups, groupedRects } = mergeGridRects(
-    validSegments,
-    gridRects,
-    cellContainingRects,
-    cellContents,
-  )
-
-  const outlineLines = buildOutline(groupedRects, offsetX, offsetY)
-
-  return {
-    midlines: midlines.map((l) => offsetLine(l, offsetX, offsetY)),
-    allSegments: allSegments.map((l) => offsetLine(l, offsetX, offsetY)),
-    validSegments: validSegments.map((l) => offsetLine(l, offsetX, offsetY)),
-    mergedRectGroups: mergedRectGroups.map((g) =>
-      g.map((r) => offsetRect(r, offsetX, offsetY)),
-    ),
-    cellRects: cellContents.map((r) => offsetRect(r, offsetX, offsetY)),
-    gridRects: gridRects.map((r) => offsetRect(r, offsetX, offsetY)),
-    outlineLines,
-  }
+  return outlineLines
 }
