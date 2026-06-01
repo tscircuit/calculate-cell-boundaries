@@ -1,7 +1,7 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
-import type { CellContent, Line, Point } from "../utils"
-import { POINT_COMPARISON_TOLERANCE, getSegmentKey } from "../utils"
+import type { CellContent, Line, Point } from "./types"
+import { getSegmentKey, POINT_COMPARISON_TOLERANCE } from "./geometry"
 
 interface Params {
   groupedRects: Array<CellContent & { groupId: number }>

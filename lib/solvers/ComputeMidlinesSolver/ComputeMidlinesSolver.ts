@@ -1,6 +1,6 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
-import type { CellContent, Midline } from "../utils"
+import type { CellContent, Midline } from "./types"
 
 interface Params {
   cellContents: CellContent[]

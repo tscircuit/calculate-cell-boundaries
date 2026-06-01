@@ -1,6 +1,31 @@
-import type { CellContent, Line, Point } from "./utils"
-import { offsetLine, computeBoundsFromCellContents } from "./utils"
 import { CellBoundariesPipeline } from "./solvers/CellBoundariesPipeline"
+import type { CellContent, Line, Point } from "./types"
+
+const offsetLine = <T extends { start: Point; end: Point }>(
+  l: T,
+  offsetX: number,
+  offsetY: number,
+): T => ({
+  ...l,
+  start: { x: l.start.x + offsetX, y: l.start.y + offsetY },
+  end: { x: l.end.x + offsetX, y: l.end.y + offsetY },
+})
+
+const computeBoundsFromCellContents = (
+  cellContents: { minX: number; minY: number; maxX: number; maxY: number }[],
+) => {
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity
+  for (const cell of cellContents) {
+    minX = Math.min(minX, cell.minX)
+    minY = Math.min(minY, cell.minY)
+    maxX = Math.max(maxX, cell.maxX)
+    maxY = Math.max(maxY, cell.maxY)
+  }
+  return { minX, minY, maxX, maxY }
+}
 
 const normalizeSegment = (segment: Line): Line => {
   let { start, end } = segment
