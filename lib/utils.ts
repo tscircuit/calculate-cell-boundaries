@@ -1,4 +1,5 @@
-import type { Point, Midline, CellContent } from "./internalTypes"
+import type { Point, CellContent, Midline } from "./types"
+export type { Point, CellContent, Midline, Line, Intersection } from "./types"
 
 export const POINT_COMPARISON_TOLERANCE = 0.001
 
@@ -11,9 +12,6 @@ export const pairs = <T>(arr: T[]): [T, T][] => {
   }
   return result
 }
-
-export const snapToGrid = (value: number, gridSize: number = 25) =>
-  Math.round(value / gridSize) * gridSize
 
 export const pointsEqual = (
   p1: Point,
@@ -51,7 +49,7 @@ export const lineIntersection = (
   return null
 }
 
-export const lineSegmentIntersection = (
+const lineSegmentIntersection = (
   p1: Point,
   p2: Point,
   p3: Point,
@@ -110,7 +108,7 @@ export const lineIntersectsRectangle = (
   return false
 }
 
-export const distanceToCell = (point: Point, cell: CellContent): number => {
+const distanceToCell = (point: Point, cell: CellContent): number => {
   const closestX = Math.max(cell.x, Math.min(point.x, cell.x + cell.width))
   const closestY = Math.max(cell.y, Math.min(point.y, cell.y + cell.height))
 
@@ -120,7 +118,7 @@ export const distanceToCell = (point: Point, cell: CellContent): number => {
   return Math.sqrt(dx * dx + dy * dy)
 }
 
-export const distanceFromSegmentToCell = (
+const distanceFromSegmentToCell = (
   start: Point,
   end: Point,
   cell: CellContent,
@@ -141,13 +139,6 @@ export const distanceFromSegmentToCell = (
   return minDistance
 }
 
-export const distanceToAnyCell = (
-  point: Point,
-  cells: CellContent[],
-): number => {
-  return Math.min(...cells.map((cell) => distanceToCell(point, cell)))
-}
-
 export const segmentDistanceToAnyCell = (
   start: Point,
   end: Point,
@@ -157,55 +148,6 @@ export const segmentDistanceToAnyCell = (
     ...cells.map((cell) => distanceFromSegmentToCell(start, end, cell)),
   )
 }
-
-export const findClosestPointOnSegmentToCell = (
-  start: Point,
-  end: Point,
-  cell: CellContent,
-): { point: Point; distance: number } => {
-  const numSamples = 20
-  let closestPoint = start
-  let minDistance = Infinity
-
-  for (let i = 0; i <= numSamples; i++) {
-    const t = i / numSamples
-    const point = {
-      x: start.x + t * (end.x - start.x),
-      y: start.y + t * (end.y - start.y),
-    }
-    const distance = distanceToCell(point, cell)
-    if (distance < minDistance) {
-      minDistance = distance
-      closestPoint = point
-    }
-  }
-
-  return { point: closestPoint, distance: minDistance }
-}
-
-export const findClosestPointOnSegmentToAnyCells = (
-  start: Point,
-  end: Point,
-  cells: CellContent[],
-): { point: Point; distance: number; cellIndex: number } => {
-  let globalClosest = { point: start, distance: Infinity, cellIndex: -1 }
-
-  cells.forEach((cell, index) => {
-    const { point, distance } = findClosestPointOnSegmentToCell(
-      start,
-      end,
-      cell,
-    )
-    if (distance < globalClosest.distance) {
-      globalClosest = { point, distance, cellIndex: index }
-    }
-  })
-
-  return globalClosest
-}
-
-export const pointToKey = (p: Point): string =>
-  `${p.x.toFixed(4)},${p.y.toFixed(4)}`
 
 export const getSegmentKey = (p1: Point, p2: Point): string => {
   const p1x = parseFloat(p1.x.toFixed(4))
@@ -220,6 +162,71 @@ export const getSegmentKey = (p1: Point, p2: Point): string => {
   }
 }
 
-export const getAngle = (p1: Point, p2: Point): number => {
-  return Math.atan2(p2.y - p1.y, p2.x - p1.x)
+export const computeBoundsFromCellContents = (
+  cellContents: { minX: number; minY: number; maxX: number; maxY: number }[],
+) => {
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+
+  for (const cell of cellContents) {
+    minX = Math.min(minX, cell.minX)
+    minY = Math.min(minY, cell.minY)
+    maxX = Math.max(maxX, cell.maxX)
+    maxY = Math.max(maxY, cell.maxY)
+  }
+
+  return { minX, minY, maxX, maxY }
 }
+
+export const edgeToEdgeDistance = (a: CellContent, b: CellContent) => {
+  const dx = Math.max(a.x - (b.x + b.width), b.x - (a.x + a.width), 0)
+  const dy = Math.max(a.y - (b.y + b.height), b.y - (a.y + a.height), 0)
+  return dx + dy
+}
+
+export const areAdjacent = (a: CellContent, b: CellContent, tol = 0.5) => {
+  const shareVertical =
+    (Math.abs(a.x + a.width - b.x) < tol ||
+      Math.abs(b.x + b.width - a.x) < tol) &&
+    !(a.y + a.height <= b.y || b.y + b.height <= a.y)
+
+  const shareHorizontal =
+    (Math.abs(a.y + a.height - b.y) < tol ||
+      Math.abs(b.y + b.height - a.y) < tol) &&
+    !(a.x + a.width <= b.x || b.x + b.width <= a.x)
+
+  return shareVertical || shareHorizontal
+}
+
+export const rectsOverlap = (a: CellContent, b: CellContent) =>
+  a.x < b.x + b.width &&
+  a.x + a.width > b.x &&
+  a.y < b.y + b.height &&
+  a.y + a.height > b.y
+
+const offsetPoint = (p: Point, offsetX: number, offsetY: number): Point => ({
+  x: p.x + offsetX,
+  y: p.y + offsetY,
+})
+
+export const offsetLine = <T extends { start: Point; end: Point }>(
+  l: T,
+  offsetX: number,
+  offsetY: number,
+): T => ({
+  ...l,
+  start: offsetPoint(l.start, offsetX, offsetY),
+  end: offsetPoint(l.end, offsetX, offsetY),
+})
+
+export const offsetRect = (
+  r: CellContent,
+  offsetX: number,
+  offsetY: number,
+): CellContent => ({
+  ...r,
+  x: r.x + offsetX,
+  y: r.y + offsetY,
+})

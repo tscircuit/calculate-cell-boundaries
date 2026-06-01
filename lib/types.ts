@@ -1,4 +1,4 @@
-export interface CellContent {
+export interface InputRect {
   cellId?: string
   minX: number
   minY: number
@@ -6,24 +6,36 @@ export interface CellContent {
   maxY: number
 }
 
-export interface Vec2 {
+export interface Point {
   x: number
   y: number
 }
 
-export interface Line {
-  start: { x: number; y: number }
-  end: { x: number; y: number }
+export interface CellContent {
+  cellId: string
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
-export type Midline =
-  | {
-      midlineType: "horizontal"
-      y: number
-      fromCellIds: Set<string>
-    }
-  | {
-      midlineType: "vertical"
-      x: number
-      fromCellIds: Set<string>
-    }
+export interface Midline {
+  id: string
+  start: Point
+  end: Point
+  cellIds: [string, string]
+  type: "horizontal" | "vertical"
+}
+
+export interface Line {
+  id?: string
+  start: Point
+  end: Point
+  fromCellIds?: string[]
+  distanceToAnyCell?: number
+}
+
+export interface Intersection {
+  point: Point
+  midlineIds: string[]
+}
