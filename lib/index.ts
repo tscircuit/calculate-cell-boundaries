@@ -1,9 +1,12 @@
-import type { InputRect, Line } from "./types"
-export type { InputRect as CellContent, Line } from "./types"
 import { calculateCellBoundaries as _calculateCellBoundaries } from "./calculateCellBoundaries"
+import type { InputRect, Line as BoundaryLine } from "./types"
+
+export type CellContent = InputRect
+
+export type Line = BoundaryLine
 
 export const calculateCellBoundaries = (
-  inputCellContents: Omit<InputRect, "cellId">[],
+  inputCellContents: Omit<CellContent, "cellId">[],
 ): Line[] => {
   return _calculateCellBoundaries(
     inputCellContents.map((c) => ({

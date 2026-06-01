@@ -1,14 +1,16 @@
+export interface Vec2 {
+  x: number
+  y: number
+}
+
+export type Point = Vec2
+
 export interface InputRect {
   cellId?: string
   minX: number
   minY: number
   maxX: number
   maxY: number
-}
-
-export interface Point {
-  x: number
-  y: number
 }
 
 export interface CellContent {
@@ -19,20 +21,20 @@ export interface CellContent {
   height: number
 }
 
+export interface Line {
+  id?: string
+  start: Vec2
+  end: Vec2
+  fromCellIds?: string[]
+  distanceToAnyCell?: number
+}
+
 export interface Midline {
   id: string
   start: Point
   end: Point
   cellIds: [string, string]
   type: "horizontal" | "vertical"
-}
-
-export interface Line {
-  id?: string
-  start: Point
-  end: Point
-  fromCellIds?: string[]
-  distanceToAnyCell?: number
 }
 
 export interface Intersection {

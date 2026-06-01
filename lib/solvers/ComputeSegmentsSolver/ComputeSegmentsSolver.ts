@@ -1,7 +1,7 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
-import type { CellContent, Midline, Intersection, Line } from "../utils"
-import { segmentDistanceToAnyCell, pairs } from "../utils"
+import type { CellContent, Intersection, Line, Midline } from "./types"
+import { pairs, segmentDistanceToAnyCell } from "./geometry"
 
 interface Params {
   midlines: Midline[]

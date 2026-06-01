@@ -3,13 +3,16 @@ import {
   definePipelineStep,
   type PipelineStep,
 } from "@tscircuit/solver-utils"
-import type { CellContent, Midline, Line } from "../utils"
-import { ComputeMidlinesSolver } from "./ComputeMidlinesSolver"
-import { ComputeIntersectionsSolver } from "./ComputeIntersectionsSolver"
-import { ComputeSegmentsSolver } from "./ComputeSegmentsSolver"
-import { BuildGridSolver } from "./BuildGridSolver"
-import { MergeGridSolver } from "./MergeGridSolver"
-import { BuildOutlineSolver } from "./BuildOutlineSolver"
+import type { CellContent, Line, Midline } from "../types"
+import { ComputeMidlinesSolver } from "./ComputeMidlinesSolver/ComputeMidlinesSolver"
+import { ComputeIntersectionsSolver } from "./ComputeIntersectionsSolver/ComputeIntersectionsSolver"
+import { ComputeSegmentsSolver } from "./ComputeSegmentsSolver/ComputeSegmentsSolver"
+import { BuildGridSolver } from "./BuildGridSolver/BuildGridSolver"
+import { MergeGridSolver } from "./MergeGridSolver/MergeGridSolver"
+import { BuildOutlineSolver } from "./BuildOutlineSolver/BuildOutlineSolver"
+import { ReduceBoundaryLinesSolver } from "./ReduceBoundaryLinesSolver/ReduceBoundaryLinesSolver"
+import { RepairBoundaryLinesSolver } from "./RepairBoundaryLinesSolver/RepairBoundaryLinesSolver"
+import { RefineBoundaryLinesSolver } from "./RefineBoundaryLinesSolver/RefineBoundaryLinesSolver"
 
 export interface CellBoundariesInput {
   cellContents: CellContent[]
@@ -24,6 +27,9 @@ export class CellBoundariesPipeline extends BasePipelineSolver<CellBoundariesInp
   buildGridSolver?: BuildGridSolver
   mergeGridSolver?: MergeGridSolver
   buildOutlineSolver?: BuildOutlineSolver
+  reduceBoundaryLinesSolver?: ReduceBoundaryLinesSolver
+  repairBoundaryLinesSolver?: RepairBoundaryLinesSolver
+  refineBoundaryLinesSolver?: RefineBoundaryLinesSolver
 
   pipelineDef: PipelineStep<any>[] = [
     definePipelineStep(
@@ -100,12 +106,54 @@ export class CellBoundariesPipeline extends BasePipelineSolver<CellBoundariesInp
         },
       ],
     ),
+    definePipelineStep(
+      "reduceBoundaryLinesSolver",
+      ReduceBoundaryLinesSolver,
+      (p: CellBoundariesPipeline) => [
+        {
+          outlineLines:
+            p.getSolver<BuildOutlineSolver>("buildOutlineSolver")!.outlineLines,
+          cellContents: p.inputProblem.cellContents,
+        },
+      ],
+    ),
+    definePipelineStep(
+      "repairBoundaryLinesSolver",
+      RepairBoundaryLinesSolver,
+      (p: CellBoundariesPipeline) => [
+        {
+          reducedLines: p.getSolver<ReduceBoundaryLinesSolver>(
+            "reduceBoundaryLinesSolver",
+          )!.reducedLines,
+          originalLines: p.getSolver<ReduceBoundaryLinesSolver>(
+            "reduceBoundaryLinesSolver",
+          )!.mergedOriginalLines,
+          cellContents: p.inputProblem.cellContents,
+        },
+      ],
+    ),
+    definePipelineStep(
+      "refineBoundaryLinesSolver",
+      RefineBoundaryLinesSolver,
+      (p: CellBoundariesPipeline) => [
+        {
+          repairedLines: p.getSolver<RepairBoundaryLinesSolver>(
+            "repairBoundaryLinesSolver",
+          )!.repairedLines,
+          cellContents: p.inputProblem.cellContents,
+        },
+      ],
+    ),
   ]
 
   override finalVisualize() {
+    const refinedSolver = this.getSolver<RefineBoundaryLinesSolver>(
+      "refineBoundaryLinesSolver",
+    )
     const outlineSolver =
       this.getSolver<BuildOutlineSolver>("buildOutlineSolver")
-    if (!outlineSolver) return null
+    const lines = refinedSolver?.refinedLines ?? outlineSolver?.outlineLines
+    if (!lines) return null
     return {
       rects: this.inputProblem.cellContents.map((c) => ({
         center: { x: c.x + c.width / 2, y: c.y + c.height / 2 },
@@ -115,7 +163,7 @@ export class CellBoundariesPipeline extends BasePipelineSolver<CellBoundariesInp
         stroke: "#c87000",
         label: c.cellId,
       })),
-      lines: outlineSolver.outlineLines.map((l) => ({
+      lines: lines.map((l) => ({
         points: [l.start, l.end],
         strokeColor: "#000000",
         strokeWidth: 3,
@@ -165,8 +213,11 @@ export class CellBoundariesPipeline extends BasePipelineSolver<CellBoundariesInp
       gridRects:
         this.getSolver<BuildGridSolver>("buildGridSolver")?.gridRects ?? [],
       outlineLines:
+        this.getSolver<RefineBoundaryLinesSolver>("refineBoundaryLinesSolver")
+          ?.refinedLines ??
         this.getSolver<BuildOutlineSolver>("buildOutlineSolver")
-          ?.outlineLines ?? [],
+          ?.outlineLines ??
+        [],
     }
   }
 }
