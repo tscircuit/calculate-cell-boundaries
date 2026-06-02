@@ -123,7 +123,7 @@ export const collapseVerticalDoglegs = (
           Math.max(first.start.y, first.end.y),
           Math.max(second.start.y, second.end.y),
         )
-        if (overlapMaxY - overlapMinY <= TOL) continue
+        if (overlapMaxY - overlapMinY < -TOL) continue
 
         const hasHorizontalConnector = collapsed.some((line, index) => {
           if (index === firstIndex || index === secondIndex) return false
