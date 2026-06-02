@@ -9,6 +9,8 @@ import {
   mergeAlignedSegments,
   endpointOnLineAtX,
   endpointOnLineAtY,
+  separatedCellPairs,
+  preservesSeparatedCellPairs,
 } from "./geometry"
 
 export const collapseHorizontalSteps = (
@@ -21,6 +23,7 @@ export const collapseHorizontalSteps = (
   while (changed) {
     changed = false
     const currentShared = sharedCellRegionCount(collapsed, cellContents)
+    const requiredPairs = separatedCellPairs(collapsed, cellContents)
 
     for (
       let verticalIndex = 0;
@@ -51,7 +54,7 @@ export const collapseHorizontalSteps = (
           const second = collapsed[secondIndex]
           if (!second) continue
 
-          if (!endpointOnLineAtX(second, x)) continue
+          if (!lineContainsPoint(second, { x, y: second.start.y })) continue
           if (!lineContainsPoint(vertical, { x, y: second.start.y })) continue
 
           if (Math.abs(first.start.y - second.start.y) < TOL) continue
@@ -63,26 +66,28 @@ export const collapseHorizontalSteps = (
             const vStepName = endpointOnLineAtY(vertical, stepH.start.y)
             if (!vStepName) continue
 
+            const stepEndpointName = endpointOnLineAtX(stepH, x)
+            if (!stepEndpointName) continue
+
             const stepOther = lineOtherEndpoint(
               stepH,
-              endpointOnLineAtX(stepH, x)!,
+              stepEndpointName,
             )
-            const otherOther = lineOtherEndpoint(
-              otherH,
-              endpointOnLineAtX(otherH, x)!,
-            )
-            if ((stepOther.x - x) * (otherOther.x - x) >= -TOL) continue
+            const otherMinX = Math.min(otherH.start.x, otherH.end.x)
+            const otherMaxX = Math.max(otherH.start.x, otherH.end.x)
+            if (stepOther.x < x - TOL && otherMaxX <= x + TOL) continue
+            if (stepOther.x > x + TOL && otherMinX >= x - TOL) continue
 
             const vFarEndpoint = lineOtherEndpoint(vertical, vStepName)
 
             for (const targetY of [stepH.start.y, otherH.start.y]) {
               const mergedH = {
                 start: {
-                  x: Math.min(stepOther.x, otherOther.x),
+                  x: Math.min(stepOther.x, otherMinX),
                   y: targetY,
                 },
                 end: {
-                  x: Math.max(stepOther.x, otherOther.x),
+                  x: Math.max(stepOther.x, otherMaxX),
                   y: targetY,
                 },
               }
@@ -101,6 +106,15 @@ export const collapseHorizontalSteps = (
                 )
                 .concat(mergedH, newV)
               if (!candidateIsValid(candidate, cellContents)) continue
+              if (
+                !preservesSeparatedCellPairs(
+                  candidate,
+                  cellContents,
+                  requiredPairs,
+                )
+              ) {
+                continue
+              }
               if (
                 sharedCellRegionCount(candidate, cellContents) > currentShared
               ) {
