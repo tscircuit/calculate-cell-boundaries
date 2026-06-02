@@ -10,6 +10,7 @@ import {
 import { collapseVerticalDoglegs } from "./collapseVerticalDoglegs"
 import { collapseHorizontalSteps } from "./collapseHorizontalSteps"
 import { removeRedundantParallelBridges } from "./removeRedundantParallelBridges"
+import { removeRedundantSeparators } from "./removeRedundantSeparators"
 
 interface Params {
   repairedLines: BLine[]
@@ -23,6 +24,7 @@ enum Stage {
   RemoveRedundantParallelBridges,
   ReconnectDanglingEndpoints,
   TrimDanglingOverhangs,
+  RemoveRedundantSeparators,
   MergeAlignedSegments,
 }
 
@@ -85,6 +87,12 @@ export class RefineBoundaryLinesSolver extends BaseSolver {
           this._currentLines,
           inputRects,
           separatedCellPairs(this._currentLines, inputRects),
+        )
+        break
+      case Stage.RemoveRedundantSeparators:
+        this._currentLines = removeRedundantSeparators(
+          this._currentLines,
+          inputRects,
         )
         break
       case Stage.MergeAlignedSegments:
