@@ -69,10 +69,7 @@ export const collapseHorizontalSteps = (
             const stepEndpointName = endpointOnLineAtX(stepH, x)
             if (!stepEndpointName) continue
 
-            const stepOther = lineOtherEndpoint(
-              stepH,
-              stepEndpointName,
-            )
+            const stepOther = lineOtherEndpoint(stepH, stepEndpointName)
             const otherMinX = Math.min(otherH.start.x, otherH.end.x)
             const otherMaxX = Math.max(otherH.start.x, otherH.end.x)
             if (stepOther.x < x - TOL && otherMaxX <= x + TOL) continue
