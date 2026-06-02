@@ -60,7 +60,7 @@ const scene = {
   ],
 }
 
-test("repro02", async () => {
+test("repro03", async () => {
   const lines = calculateCellBoundaries(scene.cellContents)
   await expect({
     lines,
