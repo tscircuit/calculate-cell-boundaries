@@ -23,10 +23,19 @@ type CellBoundariesInput = {
   cellContents: CellRect[]
 }
 
+function computeStrokeWidth(cellContents: CellRect[]): number {
+  const allX = cellContents.flatMap((c) => [c.minX, c.maxX])
+  const allY = cellContents.flatMap((c) => [c.minY, c.maxY])
+  const spanX = Math.max(...allX) - Math.min(...allX)
+  const spanY = Math.max(...allY) - Math.min(...allY)
+  return Math.max(spanX, spanY) * 0.005
+}
+
 function toGraphicsObject({
   lines,
   cellContents,
 }: CellBoundariesInput): GraphicsObject {
+  const strokeWidth = computeStrokeWidth(cellContents)
   return {
     lines: lines.map((l) => ({
       points: [
@@ -34,7 +43,7 @@ function toGraphicsObject({
         { x: l.end.x, y: l.end.y },
       ],
       strokeColor: "#000",
-      strokeWidth: 2,
+      strokeWidth,
     })),
     rects: cellContents.map((c) => ({
       center: { x: (c.minX + c.maxX) / 2, y: (c.minY + c.maxY) / 2 },
