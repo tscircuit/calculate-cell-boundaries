@@ -11,7 +11,7 @@ const offsetLine = <T extends { start: Point; end: Point }>(
   end: { x: l.end.x + offsetX, y: l.end.y + offsetY },
 })
 
-const computeBoundsFromCellContents = (
+export const computeBoundsFromCellContents = (
   cellContents: { minX: number; minY: number; maxX: number; maxY: number }[],
 ) => {
   let minX = Infinity,
@@ -153,6 +153,8 @@ export const calculateCellBoundaries = (
     cellContents: normalizedCells,
     containerWidth,
     containerHeight,
+    offsetX,
+    offsetY,
   })
   pipeline.solve()
 

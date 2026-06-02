@@ -18,6 +18,8 @@ export interface CellBoundariesInput {
   cellContents: CellContent[]
   containerWidth: number
   containerHeight: number
+  offsetX?: number
+  offsetY?: number
 }
 
 export class CellBoundariesPipeline extends BasePipelineSolver<CellBoundariesInput> {
@@ -114,6 +116,8 @@ export class CellBoundariesPipeline extends BasePipelineSolver<CellBoundariesInp
           outlineLines:
             p.getSolver<BuildOutlineSolver>("buildOutlineSolver")!.outlineLines,
           cellContents: p.inputProblem.cellContents,
+          offsetX: p.inputProblem.offsetX,
+          offsetY: p.inputProblem.offsetY,
         },
       ],
     ),
