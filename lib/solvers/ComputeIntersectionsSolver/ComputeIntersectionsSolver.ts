@@ -1,7 +1,7 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
-import type { Midline, Intersection } from "../utils"
-import { lineIntersection } from "../utils"
+import type { Intersection, Midline } from "./types"
+import { lineIntersection } from "./lineIntersection"
 
 interface Params {
   midlines: Midline[]

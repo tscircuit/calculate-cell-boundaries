@@ -1,6 +1,18 @@
 import { getSvgFromGraphicsObject, type GraphicsObject } from "graphics-debug"
 import { expect, type MatcherResult, type CustomMatcher } from "bun:test"
-import type { Line } from "lib/types"
+
+export interface Point {
+  x: number
+  y: number
+}
+
+interface Line {
+  id?: string
+  start: Point
+  end: Point
+  fromCellIds?: string[]
+  distanceToAnyCell?: number
+}
 
 type MatcherContext = ThisParameterType<CustomMatcher<unknown, never[]>>
 

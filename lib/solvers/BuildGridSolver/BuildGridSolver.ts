@@ -1,7 +1,7 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
-import type { CellContent, Line } from "../utils"
-import { lineIntersectsRectangle, pairs, rectsOverlap } from "../utils"
+import type { CellContent, Line } from "./types"
+import { lineIntersectsRectangle, pairs, rectsOverlap } from "./geometry"
 
 interface Params {
   allSegments: Line[]

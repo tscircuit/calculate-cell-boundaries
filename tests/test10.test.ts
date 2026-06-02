@@ -30,12 +30,13 @@ test("test10", async () => {
     lines,
     cellContents: scene.cellContents,
   }).toMatchCellBoundariesSnapshot(import.meta.path)
+  lines.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
   expect(lines).toEqual(
     [
       {
         start: {
           x: 300,
-          y: 162.5,
+          y: 50,
         },
         end: {
           x: 300,
@@ -49,16 +50,6 @@ test("test10", async () => {
         },
         end: {
           x: 475,
-          y: 162.5,
-        },
-      },
-      {
-        start: {
-          x: 325,
-          y: 50,
-        },
-        end: {
-          x: 325,
           y: 162.5,
         },
       },

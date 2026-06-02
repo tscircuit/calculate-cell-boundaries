@@ -1,18 +1,12 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
-import type { CellContent, Line } from "../utils"
+import type { CellContent, Line, WorkRect } from "./types"
 import {
-  POINT_COMPARISON_TOLERANCE,
-  pointsEqual,
   areAdjacent,
   edgeToEdgeDistance,
-} from "../utils"
-
-interface WorkRect extends CellContent {
-  merged: boolean
-  groupId: number | null
-  minBoundingSegmentDistance: number
-}
+  POINT_COMPARISON_TOLERANCE,
+  pointsEqual,
+} from "./geometry"
 
 interface Params {
   validSegments: Line[]

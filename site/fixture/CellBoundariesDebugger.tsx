@@ -1,7 +1,21 @@
 import { useMemo } from "react"
 import { GenericSolverDebugger } from "@tscircuit/solver-utils/react"
 import { CellBoundariesPipeline } from "../../lib/solvers/CellBoundariesPipeline"
-import { computeBoundsFromCellContents } from "../../lib/utils"
+const computeBoundsFromCellContents = (
+  cellContents: { minX: number; minY: number; maxX: number; maxY: number }[],
+) => {
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity
+  for (const cell of cellContents) {
+    minX = Math.min(minX, cell.minX)
+    minY = Math.min(minY, cell.minY)
+    maxX = Math.max(maxX, cell.maxX)
+    maxY = Math.max(maxY, cell.maxY)
+  }
+  return { minX, minY, maxX, maxY }
+}
 
 interface Cell {
   minX: number
