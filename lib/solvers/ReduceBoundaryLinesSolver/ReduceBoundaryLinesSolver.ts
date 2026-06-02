@@ -13,6 +13,8 @@ import { removeRedundantParallelBridges } from "./removeRedundantParallelBridges
 interface Params {
   outlineLines: BLine[]
   cellContents: CellContent[]
+  offsetX?: number
+  offsetY?: number
 }
 
 enum Stage {
@@ -34,25 +36,37 @@ export class ReduceBoundaryLinesSolver extends BaseSolver {
 
   constructor(private params: Params) {
     super()
+    const ox = params.offsetX ?? 0
+    const oy = params.offsetY ?? 0
     this._inputRects = params.cellContents.map((c) => ({
-      minX: c.x,
-      minY: c.y,
-      maxX: c.x + c.width,
-      maxY: c.y + c.height,
+      minX: c.x + ox,
+      minY: c.y + oy,
+      maxX: c.x + c.width + ox,
+      maxY: c.y + c.height + oy,
     }))
   }
 
   override _step() {
     const { outlineLines } = this.params
+    const ox = this.params.offsetX ?? 0
+    const oy = this.params.offsetY ?? 0
     const inputRects = this._inputRects
 
     switch (this._stage) {
-      case Stage.MergeAlignedSegments:
-        this._currentLines = mergeAlignedSegments(
-          outlineLines.map((l) => ({ start: l.start, end: l.end })),
+      case Stage.MergeAlignedSegments: {
+        const merged = mergeAlignedSegments(
+          outlineLines.map((l) => ({
+            start: { x: l.start.x + ox, y: l.start.y + oy },
+            end: { x: l.end.x + ox, y: l.end.y + oy },
+          })),
         )
-        this.mergedOriginalLines = this._currentLines
+        this._currentLines = merged
+        this.mergedOriginalLines = merged.map((l) => ({
+          start: { x: l.start.x, y: l.start.y },
+          end: { x: l.end.x, y: l.end.y },
+        }))
         break
+      }
       case Stage.SimplifyChains:
         this._currentLines = simplifyChains(this._currentLines, inputRects)
         break
@@ -79,7 +93,14 @@ export class ReduceBoundaryLinesSolver extends BaseSolver {
           this._currentLines,
           inputRects,
         )
-        this.reducedLines = this._currentLines
+        this.reducedLines = this._currentLines.map((l) => ({
+          start: { x: l.start.x - ox, y: l.start.y - oy },
+          end: { x: l.end.x - ox, y: l.end.y - oy },
+        }))
+        this.mergedOriginalLines = this.mergedOriginalLines.map((l) => ({
+          start: { x: l.start.x - ox, y: l.start.y - oy },
+          end: { x: l.end.x - ox, y: l.end.y - oy },
+        }))
         this.solved = true
         break
     }

@@ -1,4 +1,4 @@
-import { test, expect } from "bun:test"
+import { expect, test } from "bun:test"
 import { calculateCellBoundaries } from "../lib"
 
 const scene = {
@@ -22,4 +22,12 @@ test("test13", async () => {
     lines,
     cellContents: scene.cellContents,
   }).toMatchCellBoundariesSnapshot(import.meta.path)
+  expect(lines).toContainEqual({
+    start: { x: 633.5, y: 219 },
+    end: { x: 633.5, y: 422.50000000000006 },
+  })
+  expect(lines).toContainEqual({
+    start: { x: 717.5, y: 422.50000000000006 },
+    end: { x: 717.5, y: 650 },
+  })
 })
