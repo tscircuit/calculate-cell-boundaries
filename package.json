@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "start": "cosmos",
-    "build:lib": "tsdown --dts lib/index.ts --outdir dist",
+    "build:lib": "tsup-node lib/index.ts --format esm --dts",
     "build:site": "cosmos-export",
     "format": "biome format --write .",
     "format:check": "biome format ."
@@ -28,7 +28,7 @@
     "graphics-debug": "^0.0.76",
     "react-cosmos": "^7.3.0",
     "react-cosmos-plugin-vite": "^7.3.0",
-    "tsdown": "^0.12.9"
+    "tsup": "^8.5.1"
   },
   "peerDependencies": {
     "typescript": "^5"
