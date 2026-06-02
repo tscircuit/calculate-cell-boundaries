@@ -2,7 +2,11 @@ import type { Point, Line as BLine, InputRect } from "./types"
 
 export const TOL = 0.001
 
-const pointsEqual = (p1: Point, p2: Point, tolerance: number = TOL): boolean =>
+export const pointsEqual = (
+  p1: Point,
+  p2: Point,
+  tolerance: number = TOL,
+): boolean =>
   Math.abs(p1.x - p2.x) < tolerance && Math.abs(p1.y - p2.y) < tolerance
 
 export const pointKey = (p: Point) => `${p.x.toFixed(4)},${p.y.toFixed(4)}`
@@ -254,7 +258,7 @@ export const separatedCellPairs = (
   return pairs
 }
 
-const preservesSeparatedCellPairs = (
+export const preservesSeparatedCellPairs = (
   lines: BLine[],
   cellContents: InputRect[],
   requiredPairs: Set<string>,
