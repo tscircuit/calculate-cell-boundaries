@@ -1,5 +1,6 @@
-import { calculateCellBoundaries as _calculateCellBoundaries, computeBoundsFromCellContents } from "./calculateCellBoundaries"
+import { calculateCellBoundaries as _calculateCellBoundaries } from "./calculateCellBoundaries"
 import type { InputRect as Cell, Line } from "./types"
+export { computeBoundsFromCellContents } from "./calculateCellBoundaries"
 export type { Line, Cell }
 
 export const calculateCellBoundaries = (
