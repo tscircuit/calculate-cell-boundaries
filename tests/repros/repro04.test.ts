@@ -38,8 +38,23 @@ const scene = {
   ],
 }
 
+const BOTTOM_DIVIDER_X = 4.22375
+const HORIZONTAL_SEPARATOR_Y = -15.2325
+const BOUNDARY_TOLERANCE = 0.001
+
 test("repro04 - light controller schematic sections", async () => {
   const lines = calculateCellBoundaries(scene.cellContents)
+
+  const bottomDivider = lines.find(
+    (line) =>
+      Math.abs(line.start.x - BOTTOM_DIVIDER_X) < BOUNDARY_TOLERANCE &&
+      line.start.x === line.end.x,
+  )
+  expect(bottomDivider).toBeDefined()
+  if (!bottomDivider) throw new Error("Expected the lower vertical divider")
+  expect(Math.max(bottomDivider.start.y, bottomDivider.end.y)).toBeCloseTo(
+    HORIZONTAL_SEPARATOR_Y,
+  )
 
   await expect({
     lines,
