@@ -177,42 +177,6 @@ export const candidateIsValid = (lines: BLine[], cellContents: InputRect[]) =>
       ),
   )
 
-const lineSeparatesCells = (line: BLine, cellContents: InputRect[]) => {
-  if (Math.abs(line.start.x - line.end.x) < TOL) {
-    const x = line.start.x
-    const yMin = Math.min(line.start.y, line.end.y)
-    const yMax = Math.max(line.start.y, line.end.y)
-    return cellContents.some(
-      (left) =>
-        left.maxX <= x + TOL &&
-        rangesOverlap(yMin, yMax, left.minY, left.maxY) &&
-        cellContents.some(
-          (right) =>
-            right.minX >= x - TOL &&
-            rangesOverlap(yMin, yMax, right.minY, right.maxY) &&
-            rangesOverlap(left.minY, left.maxY, right.minY, right.maxY),
-        ),
-    )
-  }
-  if (Math.abs(line.start.y - line.end.y) < TOL) {
-    const y = line.start.y
-    const xMin = Math.min(line.start.x, line.end.x)
-    const xMax = Math.max(line.start.x, line.end.x)
-    return cellContents.some(
-      (top) =>
-        top.maxY <= y + TOL &&
-        rangesOverlap(xMin, xMax, top.minX, top.maxX) &&
-        cellContents.some(
-          (bottom) =>
-            bottom.minY >= y - TOL &&
-            rangesOverlap(xMin, xMax, bottom.minX, bottom.maxX) &&
-            rangesOverlap(top.minX, top.maxX, bottom.minX, bottom.maxX),
-        ),
-    )
-  }
-  return false
-}
-
 const lineSeparatesCellPair = (line: BLine, a: InputRect, b: InputRect) => {
   const aCenter = cellCenter(a)
   const bCenter = cellCenter(b)
@@ -611,8 +575,6 @@ export const trimDanglingOverhangs = (
           .sort((a, b) => a.distance - b.distance)
           .at(0)
         if (!nearest) continue
-        const tail = { start: endpoint, end: nearest.point }
-        if (lineSeparatesCells(tail, cellContents)) continue
         const candidateLine = lineWithEndpoint(
           line,
           endpointName,
