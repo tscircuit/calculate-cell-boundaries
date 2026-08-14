@@ -11,6 +11,7 @@ import {
   endpointOnLineAtY,
   separatedCellPairs,
   preservesSeparatedCellPairs,
+  connectDanglingEndpoints,
 } from "./geometry"
 
 export const collapseHorizontalSteps = (
@@ -94,7 +95,7 @@ export const collapseHorizontalSteps = (
               if (isZeroLength(newV)) continue
               if (!candidateIsValid([newV], cellContents)) continue
 
-              const candidate = collapsed
+              let candidate = collapsed
                 .filter(
                   (_, index) =>
                     index !== firstIndex &&
@@ -102,6 +103,9 @@ export const collapseHorizontalSteps = (
                     index !== verticalIndex,
                 )
                 .concat(mergedH, newV)
+              candidate = connectDanglingEndpoints(candidate, cellContents, {
+                preserveOriginalSpan: true,
+              })
               if (!candidateIsValid(candidate, cellContents)) continue
               if (
                 !preservesSeparatedCellPairs(

@@ -97,6 +97,15 @@ export class RefineBoundaryLinesSolver extends BaseSolver {
         break
       case Stage.MergeAlignedSegments:
         this._currentLines = mergeAlignedSegments(this._currentLines)
+        this._currentLines = collapseHorizontalSteps(
+          this._currentLines,
+          inputRects,
+        )
+        this._currentLines = trimDanglingOverhangs(
+          this._currentLines,
+          inputRects,
+          separatedCellPairs(this._currentLines, inputRects),
+        )
         this.refinedLines = this._currentLines
         this.solved = true
         break

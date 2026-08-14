@@ -42,6 +42,15 @@ const cellContents = [
 
 test("repro: boundary island seperated", async () => {
   const lines = calculateCellBoundaries(cellContents)
+  const horizontalLines = lines.filter((line) => line.start.y === line.end.y)
+  const rightmostVertical = lines
+    .filter((line) => line.start.x === line.end.x)
+    .toSorted((a, b) => b.start.x - a.start.x)[0]
+
+  expect(horizontalLines).toHaveLength(1)
+  expect(Math.max(rightmostVertical!.start.y, rightmostVertical!.end.y)).toBe(
+    horizontalLines[0]!.start.y,
+  )
 
   await expect({ lines, cellContents }).toMatchCellBoundariesSnapshot(
     import.meta.path,
