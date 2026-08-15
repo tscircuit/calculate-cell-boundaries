@@ -9,6 +9,7 @@ import {
 } from "./geometry"
 import { collapseVerticalDoglegs } from "./collapseVerticalDoglegs"
 import { collapseHorizontalSteps } from "./collapseHorizontalSteps"
+import { collapseOverlappingHorizontalSteps } from "./collapseOverlappingHorizontalSteps"
 import { removeRedundantParallelBridges } from "./removeRedundantParallelBridges"
 import { removeRedundantSeparators } from "./removeRedundantSeparators"
 
@@ -98,6 +99,10 @@ export class RefineBoundaryLinesSolver extends BaseSolver {
       case Stage.MergeAlignedSegments:
         this._currentLines = mergeAlignedSegments(this._currentLines)
         this._currentLines = collapseHorizontalSteps(
+          this._currentLines,
+          inputRects,
+        )
+        this._currentLines = collapseOverlappingHorizontalSteps(
           this._currentLines,
           inputRects,
         )

@@ -62,8 +62,10 @@ const cellContents = [
 
 test("repro06 - rp2040 schematic sections", async () => {
   const lines = calculateCellBoundaries(cellContents)
+  const horizontalLines = lines.filter((line) => line.start.y === line.end.y)
 
-  expect(lines).toHaveLength(9)
+  expect(lines).toHaveLength(8)
+  expect(horizontalLines).toHaveLength(1)
   await expect({ lines, cellContents }).toMatchCellBoundariesSnapshot(
     import.meta.path,
   )
