@@ -1,6 +1,10 @@
 {
   "name": "calculate-cell-boundaries",
   "version": "0.0.19",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tscircuit/calculate-cell-boundaries.git"
+  },
   "main": "dist/index.js",
   "files": [
     "dist"
