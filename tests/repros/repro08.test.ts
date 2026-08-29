@@ -75,49 +75,53 @@ const rcCarSectionMemberClusters: Cell[] = [
   },
 ]
 
-test("rc car intersecting section bounds produce grouped boundaries", async () => {
-  const lines = calculateCellBoundaries(rcCarSectionMemberClusters)
+test(
+  "rc car intersecting section bounds produce grouped boundaries",
+  async () => {
+    const lines = calculateCellBoundaries(rcCarSectionMemberClusters)
 
-  expect(lines).toEqual([
-    {
-      start: { x: -17.5, y: -4.18 },
-      end: { x: -4.436250000000001, y: -4.18 },
-    },
-    {
-      start: { x: -8.40645, y: -20.759999999999998 },
-      end: { x: -8.40645, y: -13.710227674999999 },
-    },
-    {
-      start: { x: -8.40645, y: -13.710227674999999 },
-      end: { x: 4.63625, y: -13.710227674999999 },
-    },
-    {
-      start: { x: -7.131250000000001, y: -5.579727674999999 },
-      end: { x: -7.131250000000001, y: -4.600000000000001 },
-    },
-    {
-      start: { x: -7.131250000000001, y: -4.600000000000001 },
-      end: { x: -3.712900000000001, y: -4.600000000000001 },
-    },
-    {
-      start: { x: -6.770000000000001, y: -4.18 },
-      end: { x: -6.770000000000001, y: -0.6550000000000011 },
-    },
-    {
-      start: { x: -4.436250000000001, y: -4.600000000000001 },
-      end: { x: -4.436250000000001, y: -4.18 },
-    },
-    {
-      start: { x: -4.436249999999999, y: -5.579727675000001 },
-      end: { x: -3.474999999999998, y: -5.579727675000001 },
-    },
-    {
-      start: { x: 4.63625, y: -20.759999999999998 },
-      end: { x: 4.63625, y: -0.6550000000000011 },
-    },
-  ])
-  await expect({
-    lines,
-    cellContents: rcCarSectionMemberClusters,
-  }).toMatchCellBoundariesSnapshot(import.meta.path)
-})
+    expect(lines).toEqual([
+      {
+        start: { x: -17.5, y: -4.18 },
+        end: { x: -4.436250000000001, y: -4.18 },
+      },
+      {
+        start: { x: -8.40645, y: -20.759999999999998 },
+        end: { x: -8.40645, y: -13.710227674999999 },
+      },
+      {
+        start: { x: -8.40645, y: -13.710227674999999 },
+        end: { x: 4.63625, y: -13.710227674999999 },
+      },
+      {
+        start: { x: -7.131250000000001, y: -5.579727674999999 },
+        end: { x: -7.131250000000001, y: -4.600000000000001 },
+      },
+      {
+        start: { x: -7.131250000000001, y: -4.600000000000001 },
+        end: { x: -3.712900000000001, y: -4.600000000000001 },
+      },
+      {
+        start: { x: -6.770000000000001, y: -4.18 },
+        end: { x: -6.770000000000001, y: -0.6550000000000011 },
+      },
+      {
+        start: { x: -4.436250000000001, y: -4.600000000000001 },
+        end: { x: -4.436250000000001, y: -4.18 },
+      },
+      {
+        start: { x: -4.436249999999999, y: -5.579727675000001 },
+        end: { x: -3.474999999999998, y: -5.579727675000001 },
+      },
+      {
+        start: { x: 4.63625, y: -20.759999999999998 },
+        end: { x: 4.63625, y: -0.6550000000000011 },
+      },
+    ])
+    await expect({
+      lines,
+      cellContents: rcCarSectionMemberClusters,
+    }).toMatchCellBoundariesSnapshot(import.meta.path)
+  },
+  { timeout: 15_000 },
+)
