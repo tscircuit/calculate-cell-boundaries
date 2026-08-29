@@ -13,12 +13,19 @@ export class ComputeMidlinesSolver extends BaseSolver {
 
   private _pairIdx = 0
   private _allPairs: [number, number][] = []
+  private _verticalMidlineXCoordinates = new Set<number>()
+  private _horizontalMidlineYCoordinates = new Set<number>()
 
   constructor(private params: Params) {
     super()
     const { cellContents } = params
     for (let i = 0; i < cellContents.length; i++) {
       for (let j = i + 1; j < cellContents.length; j++) {
+        if (
+          cellContents[i]!.cellGroupIndex === cellContents[j]!.cellGroupIndex
+        ) {
+          continue
+        }
         this._allPairs.push([i, j])
       }
     }
@@ -46,13 +53,16 @@ export class ComputeMidlinesSolver extends BaseSolver {
         cell1Right < cell2.x
           ? (cell1Right + cell2.x) / 2
           : (cell2Right + cell1.x) / 2
-      this.midlines.push({
-        id: `midline-${this.midlines.length}`,
-        start: { x: midX, y: 0 },
-        end: { x: midX, y: containerHeight },
-        cellIds: [cell1.cellId, cell2.cellId],
-        type: "vertical",
-      })
+      if (!this._verticalMidlineXCoordinates.has(midX)) {
+        this._verticalMidlineXCoordinates.add(midX)
+        this.midlines.push({
+          id: `midline-${this.midlines.length}`,
+          start: { x: midX, y: 0 },
+          end: { x: midX, y: containerHeight },
+          cellIds: [cell1.cellId, cell2.cellId],
+          type: "vertical",
+        })
+      }
     }
 
     if (cell1Bottom < cell2.y || cell2Bottom < cell1.y) {
@@ -60,13 +70,16 @@ export class ComputeMidlinesSolver extends BaseSolver {
         cell1Bottom < cell2.y
           ? (cell1Bottom + cell2.y) / 2
           : (cell2Bottom + cell1.y) / 2
-      this.midlines.push({
-        id: `midline-${this.midlines.length}`,
-        start: { x: 0, y: midY },
-        end: { x: containerWidth, y: midY },
-        cellIds: [cell1.cellId, cell2.cellId],
-        type: "horizontal",
-      })
+      if (!this._horizontalMidlineYCoordinates.has(midY)) {
+        this._horizontalMidlineYCoordinates.add(midY)
+        this.midlines.push({
+          id: `midline-${this.midlines.length}`,
+          start: { x: 0, y: midY },
+          end: { x: containerWidth, y: midY },
+          cellIds: [cell1.cellId, cell2.cellId],
+          type: "horizontal",
+        })
+      }
     }
 
     this._pairIdx++

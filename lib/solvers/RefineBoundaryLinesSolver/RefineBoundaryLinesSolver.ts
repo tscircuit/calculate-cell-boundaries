@@ -39,6 +39,7 @@ export class RefineBoundaryLinesSolver extends BaseSolver {
   constructor(private params: Params) {
     super()
     this._inputRects = params.cellContents.map((c) => ({
+      cellId: c.cellGroupIndex,
       minX: c.x,
       minY: c.y,
       maxX: c.x + c.width,

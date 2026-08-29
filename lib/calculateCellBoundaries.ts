@@ -1,5 +1,5 @@
 import { CellBoundariesPipeline } from "./solvers/CellBoundariesPipeline"
-import type { CellContent, Line, Point } from "./types"
+import type { CellContent, CellId, Line, Point } from "./types"
 
 const offsetLine = <T extends { start: Point; end: Point }>(
   l: T,
@@ -120,14 +120,36 @@ const pointSortKey = (A: Point, B: Point) =>
   A.x !== B.x ? A.x - B.x : A.y - B.y
 
 export const calculateCellBoundaries = (
-  inputCellContents: Omit<CellContent, "cellId">[],
+  inputCellContents: Array<
+    Omit<CellContent, "cellId" | "cellGroupIndex"> & {
+      cellId?: CellId
+    }
+  >,
   containerWidth?: number,
   containerHeight?: number,
 ) => {
-  const cellContents = inputCellContents.map((c, i) => ({
-    ...c,
-    cellId: `cell-${i}`,
-  }))
+  const cellGroupIndexById = new Map<CellId, number>()
+  let nextCellGroupIndex = 0
+  const cellContents = inputCellContents.map((cell, index) => {
+    let cellGroupIndex = nextCellGroupIndex
+    if (cell.cellId !== undefined) {
+      const existingCellGroupIndex = cellGroupIndexById.get(cell.cellId)
+      if (existingCellGroupIndex !== undefined) {
+        cellGroupIndex = existingCellGroupIndex
+      } else {
+        cellGroupIndexById.set(cell.cellId, cellGroupIndex)
+        nextCellGroupIndex++
+      }
+    } else {
+      nextCellGroupIndex++
+    }
+
+    return {
+      ...cell,
+      cellId: `cell-${index}`,
+      cellGroupIndex,
+    }
+  })
 
   const bounds = computeBoundsFromCellContents(
     cellContents.map((c) => ({

@@ -1,7 +1,7 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
 import type { CellContent, Line as BLine, InputRect } from "./types"
-import { separatedCellPairs } from "./geometry"
+import { separatedCellPairs, sharedCellRegionCount } from "./geometry"
 import { restoreMissingSeparators } from "./restoreMissingSeparators"
 import { fixSharedCellRegions } from "./fixSharedCellRegions"
 import { removeRedundantSeparators } from "./removeRedundantSeparators"
@@ -28,12 +28,30 @@ export class RepairBoundaryLinesSolver extends BaseSolver {
   constructor(private params: Params) {
     super()
     this._inputRects = params.cellContents.map((c) => ({
+      cellId: c.cellGroupIndex,
       minX: c.x,
       minY: c.y,
       maxX: c.x + c.width,
       maxY: c.y + c.height,
     }))
     this._currentLines = params.reducedLines
+    const hasGroupedCellContents =
+      new Set(params.cellContents.map((cell) => cell.cellGroupIndex)).size <
+      params.cellContents.length
+    const reducedSharedCellRegionCount = sharedCellRegionCount(
+      params.reducedLines,
+      this._inputRects,
+    )
+    const originalSharedCellRegionCount = sharedCellRegionCount(
+      params.originalLines,
+      this._inputRects,
+    )
+    if (
+      hasGroupedCellContents &&
+      originalSharedCellRegionCount < reducedSharedCellRegionCount
+    ) {
+      this._currentLines = params.originalLines
+    }
   }
 
   override _step() {

@@ -71,6 +71,9 @@ const cellCenter = (cell: InputRect): Point => ({
 const valueBetween = (value: number, a: number, b: number) =>
   value > Math.min(a, b) + TOL && value < Math.max(a, b) - TOL
 
+const cellsBelongToSameGroup = (a: InputRect, b: InputRect) =>
+  a.cellId !== undefined && a.cellId === b.cellId
+
 export const pointDegrees = (lines: BLine[]) => {
   const degrees = new Map<string, number>()
   for (const line of lines) {
@@ -214,6 +217,7 @@ export const separatedCellPairs = (
     for (let j = i + 1; j < cellContents.length; j++) {
       const b = cellContents[j]
       if (!b) continue
+      if (cellsBelongToSameGroup(a, b)) continue
       if (lines.some((line) => lineSeparatesCellPair(line, a, b))) {
         pairs.add(`${i}:${j}`)
       }
@@ -377,6 +381,9 @@ export const sharedCellRegionCount = (
   let shared = 0
   for (let i = 0; i < components.length; i++) {
     for (let j = i + 1; j < components.length; j++) {
+      const a = cellContents[i]
+      const b = cellContents[j]
+      if (!a || !b || cellsBelongToSameGroup(a, b)) continue
       if (components[i] === components[j]) shared++
     }
   }
