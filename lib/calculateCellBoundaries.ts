@@ -1,5 +1,5 @@
 import { CellBoundariesPipeline } from "./solvers/CellBoundariesPipeline"
-import type { CellContent, Line, Point } from "./types"
+import type { CellContent, CellId, Line, Point } from "./types"
 
 const offsetLine = <T extends { start: Point; end: Point }>(
   l: T,
@@ -122,13 +122,13 @@ const pointSortKey = (A: Point, B: Point) =>
 export const calculateCellBoundaries = (
   inputCellContents: Array<
     Omit<CellContent, "cellId" | "cellGroupIndex"> & {
-      cellId?: string | number
+      cellId?: CellId
     }
   >,
   containerWidth?: number,
   containerHeight?: number,
 ) => {
-  const cellGroupIndexById = new Map<string | number, number>()
+  const cellGroupIndexById = new Map<CellId, number>()
   let nextCellGroupIndex = 0
   const cellContents = inputCellContents.map((cell, index) => {
     let cellGroupIndex = nextCellGroupIndex

@@ -13,11 +13,11 @@ test("grouped cross contents stay in separate cell regions", async () => {
 
   expect(lines).toEqual([
     {
-      start: { x: -0.9375, y: -3 },
-      end: { x: -0.9375, y: 3 },
+      start: { x: -1.25, y: -3 },
+      end: { x: -1.25, y: 3 },
     },
     {
-      start: { x: -0.9375, y: 1.25 },
+      start: { x: -1.25, y: 1.25 },
       end: { x: 1.25, y: 1.25 },
     },
     {

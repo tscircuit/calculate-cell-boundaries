@@ -3,8 +3,10 @@ export interface Point {
   y: number
 }
 
+export type CellId = string | number
+
 export interface InputRect {
-  cellId?: string | number
+  cellId?: CellId
   minX: number
   minY: number
   maxX: number
