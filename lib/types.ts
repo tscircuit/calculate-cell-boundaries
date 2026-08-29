@@ -4,7 +4,7 @@ export interface Point {
 }
 
 export interface InputRect {
-  cellId?: string
+  cellId?: string | number
   minX: number
   minY: number
   maxX: number
@@ -13,6 +13,7 @@ export interface InputRect {
 
 export interface CellContent {
   cellId: string
+  cellGroupIndex: number
   x: number
   y: number
   width: number

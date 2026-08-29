@@ -72,6 +72,7 @@ export class BuildGridSolver extends BaseSolver {
         ys.find((v) => v >= cell.y + cell.height) ?? ys[ys.length - 1]!
       cellContainingRects.push({
         cellId: `contain-${cell.cellId}`,
+        cellGroupIndex: cell.cellGroupIndex,
         x: left,
         y: top,
         width: Math.max(0, right - left),
@@ -87,6 +88,7 @@ export class BuildGridSolver extends BaseSolver {
         if (y1 - y0 <= 0) continue
         const candidate: CellContent = {
           cellId: `gridRect-${gridRectId++}`,
+          cellGroupIndex: -1,
           x: x0,
           y: y0,
           width: x1 - x0,

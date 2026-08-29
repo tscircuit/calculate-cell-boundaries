@@ -3,11 +3,10 @@ import type { InputRect as Cell, Line } from "./types"
 export type { Line, Cell }
 export { computeBoundsFromCellContents } from "./calculateCellBoundaries"
 
-export const calculateCellBoundaries = (
-  inputCellContents: Omit<Cell, "cellId">[],
-): Line[] => {
+export const calculateCellBoundaries = (inputCellContents: Cell[]): Line[] => {
   return _calculateCellBoundaries(
     inputCellContents.map((c) => ({
+      cellId: c.cellId,
       x: c.minX,
       y: c.minY,
       width: c.maxX - c.minX,

@@ -33,6 +33,7 @@ export function CellBoundariesDebugger({ cells, animationSpeed = 200 }: Props) {
   const solver = useMemo(() => {
     const withIds = cells.map((c, i) => ({
       cellId: `cell-${i}`,
+      cellGroupIndex: i,
       x: c.minX,
       y: c.minY,
       width: c.maxX - c.minX,
