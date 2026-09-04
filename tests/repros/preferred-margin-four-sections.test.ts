@@ -8,14 +8,8 @@ test("preferred margin on the real benchmark's four sections", async () => {
     { minX: 2.75, minY: -2.8, maxX: 7.2, maxY: 0.8999999999999999 },
     { minX: 1.7, minY: 3.175, maxX: 9.135, maxY: 6.2250000000000005 },
   ]
-  const expandedCells = cellContents.map((cell) => ({
-    minX: cell.minX - 1,
-    minY: cell.minY - 1,
-    maxX: cell.maxX + 1,
-    maxY: cell.maxY + 1,
-  }))
-  const lines = calculateCellBoundaries(expandedCells)
-  expect(lines).toHaveLength(0)
+  const lines = calculateCellBoundaries(cellContents, { cellMargin: 1 })
+  expect(lines).toHaveLength(3)
   await expect({ cellContents, lines }).toMatchCellBoundariesSnapshot(
     import.meta.path,
   )
