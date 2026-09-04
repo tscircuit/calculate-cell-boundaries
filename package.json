@@ -11,7 +11,7 @@
   ],
   "type": "module",
   "scripts": {
-    "prepare": "bun run build:lib",
+    "prepare": "bunx --package tsup@8.5.1 tsup-node lib/index.ts --format esm --dts",
     "start": "cosmos",
     "build:lib": "tsup-node lib/index.ts --format esm --dts",
     "build:site": "cosmos-export",
