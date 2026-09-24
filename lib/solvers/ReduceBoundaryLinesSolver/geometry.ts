@@ -515,7 +515,7 @@ export const mergeAlignedSegments = (segments: BLine[]): BLine[] => {
         currentMerged = { ...seg }
         continue
       }
-      if (seg.start.x <= currentMerged.end.x) {
+      if (seg.start.x <= currentMerged.end.x + TOL) {
         currentMerged.end.x = Math.max(currentMerged.end.x, seg.end.x)
       } else {
         mergedSegments.push(currentMerged)
@@ -538,7 +538,7 @@ export const mergeAlignedSegments = (segments: BLine[]): BLine[] => {
         currentMerged = { ...seg }
         continue
       }
-      if (seg.start.y <= currentMerged.end.y) {
+      if (seg.start.y <= currentMerged.end.y + TOL) {
         currentMerged.end.y = Math.max(currentMerged.end.y, seg.end.y)
       } else {
         mergedSegments.push(currentMerged)
