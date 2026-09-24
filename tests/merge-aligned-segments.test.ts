@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { mergeAlignedSegments } from "../lib/solvers/ReduceBoundaryLinesSolver/geometry"
+import { mergeAlignedSegments } from "../lib/solvers/RepairBoundaryLinesSolver/geometry"
 
 test("merge vertical segments separated by floating-point roundoff", () => {
   const lines = mergeAlignedSegments([

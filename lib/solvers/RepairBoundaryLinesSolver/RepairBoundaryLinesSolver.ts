@@ -1,7 +1,7 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
 import type { GraphicsObject } from "graphics-debug"
 import type { CellContent, Line as BLine, InputRect } from "./types"
-import { separatedCellPairs } from "./geometry"
+import { mergeAlignedSegments, separatedCellPairs } from "./geometry"
 import { restoreMissingSeparators } from "./restoreMissingSeparators"
 import { fixSharedCellRegions } from "./fixSharedCellRegions"
 import { removeRedundantSeparators } from "./removeRedundantSeparators"
@@ -37,7 +37,7 @@ export class RepairBoundaryLinesSolver extends BaseSolver {
   }
 
   override _step() {
-    const { originalLines } = this.params
+    const originalLines = mergeAlignedSegments(this.params.originalLines)
     const inputRects = this._inputRects
 
     switch (this._stage) {
