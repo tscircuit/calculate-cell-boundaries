@@ -43,10 +43,16 @@ export const collapseOverlappingHorizontalSteps = (
       const secondMaxX = Math.max(second.start.x, second.end.x)
       const overlapMinX = Math.max(firstMinX, secondMinX)
       const overlapMaxX = Math.min(firstMaxX, secondMaxX)
-      if (overlapMaxX - overlapMinX < TOL) continue
+      if (overlapMaxX < overlapMinX - TOL) continue
 
       const joined = lines.some((line) => {
         if (!isVertical(line)) return false
+        if (overlapMaxX - overlapMinX < TOL) {
+          // Touching spans form a stepped junction only when the connector crosses both.
+          const minY = Math.min(line.start.y, line.end.y)
+          const maxY = Math.max(line.start.y, line.end.y)
+          if (minY >= lowerY - TOL || maxY <= upperY + TOL) return false
+        }
         const x = line.start.x
         return (
           x >= overlapMinX - TOL &&
@@ -67,11 +73,19 @@ export const collapseOverlappingHorizontalSteps = (
       }
       const sortedBoundaries = [...boundaries].sort((a, b) => a - b)
 
-      for (let index = 1; index < sortedBoundaries.length; index++) {
-        const previous = sortedBoundaries[index - 1]
-        const next = sortedBoundaries[index]
-        if (previous === undefined || next === undefined) continue
-        const targetY = (previous + next) / 2
+      const targetYs: number[] = []
+      if (overlapMaxX - overlapMinX < TOL) {
+        targetYs.push(lowerY, upperY)
+      } else {
+        for (let index = 1; index < sortedBoundaries.length; index++) {
+          const previous = sortedBoundaries[index - 1]
+          const next = sortedBoundaries[index]
+          if (previous === undefined || next === undefined) continue
+          targetYs.push((previous + next) / 2)
+        }
+      }
+
+      for (const targetY of targetYs) {
         const mergedHorizontal = {
           start: { x: minX, y: targetY },
           end: { x: maxX, y: targetY },
