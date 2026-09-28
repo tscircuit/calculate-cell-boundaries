@@ -142,15 +142,18 @@ export class MergeGridSolver extends BaseSolver {
     let mergedAny = false
     const stillUnmerged: WorkRect[] = []
 
-    for (const rect of this._unmergedQueue) {
-      const workRect = this._workRects.find((w) => w.cellId === rect.cellId)
-      if (!workRect || workRect.merged) continue
+    for (const workRect of this._unmergedQueue) {
+      if (workRect.merged) continue
+      if (mergedAny) {
+        stillUnmerged.push(workRect)
+        continue
+      }
 
       const neighbours = this._workRects.filter(
         (o) => o.merged && areAdjacent(workRect, o),
       )
 
-      if (neighbours.length > 0 && !mergedAny) {
+      if (neighbours.length > 0) {
         workRect.merged = true
         if (neighbours.length === 1) {
           workRect.groupId = neighbours[0]!.groupId
@@ -176,7 +179,7 @@ export class MergeGridSolver extends BaseSolver {
         }
         mergedAny = true
       } else {
-        stillUnmerged.push(rect)
+        stillUnmerged.push(workRect)
       }
     }
 
