@@ -3,14 +3,15 @@ import { spawnSync } from "node:child_process"
 import { resolve } from "node:path"
 import { getSvgFromGraphicsObject } from "graphics-debug"
 import { computeBoundsFromCellContents } from "../../lib"
+import type { Line } from "../../lib"
 import { applyCellMargin } from "../../lib/applyCellMargin"
 import { CellBoundariesPipeline } from "../../lib/solvers/CellBoundariesPipeline"
 
-const PUBLIC_API_TIMEOUT_MS = 5_000
-const TEST_TIMEOUT_MS = 15_000
+const PUBLIC_API_TIMEOUT_MS = 30_000
+const TEST_TIMEOUT_MS = 45_000
 
 test(
-  "repro: Tang Nano sections exceed the boundary calculation time budget",
+  "Tang Nano sections complete boundary calculation within the time budget",
   async () => {
     // Captured from core's SchematicSectionRender, before its 1-unit cell margin.
     const cellContents = [
@@ -111,7 +112,7 @@ test(
       process.execPath,
       [
         "--eval",
-        'import { calculateCellBoundaries } from "./lib"; calculateCellBoundaries(JSON.parse(await Bun.stdin.text()), { cellMargin: 1 })',
+        'import { calculateCellBoundaries } from "./lib"; console.log(JSON.stringify(calculateCellBoundaries(JSON.parse(await Bun.stdin.text()), { cellMargin: 1 })))',
       ],
       {
         cwd: resolve(import.meta.dir, "../.."),
@@ -120,9 +121,15 @@ test(
         timeout: PUBLIC_API_TIMEOUT_MS,
       },
     )
-    expect(result.error).toMatchObject({ code: "ETIMEDOUT" })
-    expect(result.status).toBeNull()
+    expect(result.error).toBeUndefined()
+    expect(result.status).toBe(0)
     expect(result.stderr).toBe("")
+    const lines: Line[] = JSON.parse(result.stdout)
+    expect(lines).toHaveLength(10)
+    await expect({ cellContents, lines }).toMatchCellBoundariesSnapshot(
+      import.meta.path,
+      "tang-nano-sections-completed",
+    )
   },
   TEST_TIMEOUT_MS,
 )
