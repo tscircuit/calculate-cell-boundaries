@@ -1,9 +1,10 @@
 import { expect, test } from "bun:test"
+import { getSvgFromGraphicsObject } from "graphics-debug"
 import { computeBoundsFromCellContents } from "../../lib"
 import { applyCellMargin } from "../../lib/applyCellMargin"
 import { CellBoundariesPipeline } from "../../lib/solvers/CellBoundariesPipeline"
 
-test("cm4 sections finish building the grid after 100000 segments", () => {
+test("cm4 sections finish building the grid after 100000 segments", async () => {
   // Exact section bounds captured from the CM4 schematic before the cell margin.
   const sectionBounds = [
     {
@@ -172,6 +173,36 @@ test("cm4 sections finish building the grid after 100000 segments", () => {
   })
 
   pipeline.solveUntilStage("mergeGridSolver")
+
+  await expect(
+    getSvgFromGraphicsObject(
+      {
+        rects: [
+          ...pipeline.inputProblem.cellContents.map((cell) => ({
+            center: {
+              x: cell.x + cell.width / 2,
+              y: cell.y + cell.height / 2,
+            },
+            width: cell.width,
+            height: cell.height,
+            fill: "rgba(255, 165, 0, 0.4)",
+            stroke: "#c87000",
+          })),
+          ...pipeline.buildGridSolver!.cellContainingRects.map((cell) => ({
+            center: {
+              x: cell.x + cell.width / 2,
+              y: cell.y + cell.height / 2,
+            },
+            width: cell.width,
+            height: cell.height,
+            fill: "none",
+            stroke: "#000000",
+          })),
+        ],
+      },
+      { backgroundColor: "white" },
+    ),
+  ).toMatchSvgSnapshot(import.meta.path)
 
   expect(pipeline.computeSegmentsSolver?.allSegments).toHaveLength(186634)
   expect(pipeline.buildGridSolver?.solved).toBe(true)
