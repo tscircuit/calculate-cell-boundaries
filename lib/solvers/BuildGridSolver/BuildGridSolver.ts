@@ -31,6 +31,12 @@ export class BuildGridSolver extends BaseSolver {
 
   constructor(private params: Params) {
     super()
+    // Segment filtering is followed by a phase transition and grid construction.
+    const gridFinalizationSteps = 2
+    this.MAX_ITERATIONS = Math.max(
+      this.MAX_ITERATIONS,
+      params.allSegments.length + gridFinalizationSteps,
+    )
   }
 
   override _step() {

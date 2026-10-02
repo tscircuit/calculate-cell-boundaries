@@ -3,7 +3,7 @@ import { computeBoundsFromCellContents } from "../../lib"
 import { applyCellMargin } from "../../lib/applyCellMargin"
 import { CellBoundariesPipeline } from "../../lib/solvers/CellBoundariesPipeline"
 
-test.failing("cm4 sections finish building the grid after 100000 segments", () => {
+test("cm4 sections finish building the grid after 100000 segments", () => {
   // Exact section bounds captured from the CM4 schematic before the cell margin.
   const sectionBounds = [
     {
