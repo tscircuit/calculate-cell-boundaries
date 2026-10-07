@@ -201,103 +201,214 @@ export const axisValues = (lines: BLine[], cellContents: InputRect[]) => {
   }
 }
 
-const intervalBlockedByVerticalLine = (
-  lines: BLine[],
-  x: number,
-  yMin: number,
-  yMax: number,
-) =>
-  lines.some((line) => {
-    if (Math.abs(line.start.x - line.end.x) >= TOL) return false
-    if (Math.abs(line.start.x - x) >= TOL) return false
-    const lineYMin = Math.min(line.start.y, line.end.y)
-    const lineYMax = Math.max(line.start.y, line.end.y)
-    return yMin >= lineYMin - TOL && yMax <= lineYMax + TOL
-  })
+const NEIGHBOR_OFFSETS = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+] as const
 
-const intervalBlockedByHorizontalLine = (
-  lines: BLine[],
-  y: number,
-  xMin: number,
-  xMax: number,
-) =>
-  lines.some((line) => {
-    if (Math.abs(line.start.y - line.end.y) >= TOL) return false
-    if (Math.abs(line.start.y - y) >= TOL) return false
-    const lineXMin = Math.min(line.start.x, line.end.x)
-    const lineXMax = Math.max(line.start.x, line.end.x)
-    return xMin >= lineXMin - TOL && xMax <= lineXMax + TOL
-  })
+const lowerBound = (sorted: number[], value: number) => {
+  let lo = 0
+  let hi = sorted.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if ((sorted[mid] as number) < value) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+
+interface BarrierIntervalIndex {
+  /** Wall interval starts, sorted ascending. */
+  starts: number[]
+  /** prefixMaxEnds[i] is the maximum interval end among starts[0..i]. */
+  prefixMaxEnds: number[]
+}
+
+const buildBarrierIntervalIndex = (
+  intervals: { min: number; max: number }[],
+): BarrierIntervalIndex => {
+  intervals.sort((a, b) => a.min - b.min)
+  const starts: number[] = []
+  const prefixMaxEnds: number[] = []
+  let maxEnd = -Infinity
+  for (const interval of intervals) {
+    starts.push(interval.min)
+    if (interval.max > maxEnd) maxEnd = interval.max
+    prefixMaxEnds.push(maxEnd)
+  }
+  return { starts, prefixMaxEnds }
+}
+
+/**
+ * Whether any wall interval on this boundary blocks the tile interval
+ * [intervalMin, intervalMax], i.e. some wall satisfies
+ * intervalMin >= wallMin - TOL && intervalMax <= wallMax + TOL. Walls are
+ * indexed once per call (sorted by start, with prefix maxima of end), so a
+ * query is a binary search instead of a scan of the whole wall list.
+ */
+const intervalIsBlockedByBarriers = (
+  barriers: BarrierIntervalIndex | undefined,
+  intervalMin: number,
+  intervalMax: number,
+): boolean => {
+  if (!barriers) return false
+  const { starts, prefixMaxEnds } = barriers
+  let lo = 0
+  let hi = starts.length - 1
+  let pos = -1
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1
+    if (intervalMin >= (starts[mid] as number) - TOL) {
+      pos = mid
+      lo = mid + 1
+    } else {
+      hi = mid - 1
+    }
+  }
+  return pos >= 0 && intervalMax <= (prefixMaxEnds[pos] as number) + TOL
+}
+
+const addWallIntervalsOnMatchingBoundaries = (
+  intervalsByBoundary: Map<number, { min: number; max: number }[]>,
+  sortedAxis: number[],
+  lastBoundaryIndex: number,
+  value: number,
+  min: number,
+  max: number,
+) => {
+  let index = lowerBound(sortedAxis, value - TOL)
+  while (index <= lastBoundaryIndex) {
+    const axisValue = sortedAxis[index]
+    if (axisValue === undefined || axisValue >= value + TOL) break
+    if (Math.abs(axisValue - value) < TOL) {
+      const bucket = intervalsByBoundary.get(index)
+      if (bucket) bucket.push({ min, max })
+      else intervalsByBoundary.set(index, [{ min, max }])
+    }
+    index++
+  }
+}
 
 const cellRegionComponents = (lines: BLine[], cellContents: InputRect[]) => {
   const { xs, ys } = axisValues(lines, cellContents)
   const xCount = xs.length - 1
   const yCount = ys.length - 1
-  const componentByTile = new Map<string, number>()
-  const tileKey = (xIndex: number, yIndex: number) => `${xIndex}:${yIndex}`
-  let componentId = 0
-  for (let startX = 0; startX < xCount; startX++) {
-    for (let startY = 0; startY < yCount; startY++) {
-      const startKey = tileKey(startX, startY)
-      if (componentByTile.has(startKey)) continue
-      const stack = [{ x: startX, y: startY }]
-      componentByTile.set(startKey, componentId)
-      while (stack.length > 0) {
-        const current = stack.pop()
-        if (!current) continue
-        const neighbours = [
-          { x: current.x - 1, y: current.y },
-          { x: current.x + 1, y: current.y },
-          { x: current.x, y: current.y - 1 },
-          { x: current.x, y: current.y + 1 },
-        ]
-        for (const next of neighbours) {
-          if (next.x < 0 || next.x >= xCount || next.y < 0 || next.y >= yCount)
-            continue
-          const nextKey = tileKey(next.x, next.y)
-          if (componentByTile.has(nextKey)) continue
-          let blocked = false
-          if (next.x !== current.x) {
-            const boundaryX = xs[Math.max(next.x, current.x)]
-            const yMin = ys[current.y]
-            const yMax = ys[current.y + 1]
-            if (
-              boundaryX === undefined ||
-              yMin === undefined ||
-              yMax === undefined
-            )
-              continue
-            blocked = intervalBlockedByVerticalLine(
-              lines,
-              boundaryX,
-              yMin,
-              yMax,
-            )
-          } else {
-            const boundaryY = ys[Math.max(next.y, current.y)]
-            const xMin = xs[current.x]
-            const xMax = xs[current.x + 1]
-            if (
-              boundaryY === undefined ||
-              xMin === undefined ||
-              xMax === undefined
-            )
-              continue
-            blocked = intervalBlockedByHorizontalLine(
-              lines,
-              boundaryY,
-              xMin,
-              xMax,
-            )
-          }
-          if (blocked) continue
-          componentByTile.set(nextKey, componentId)
-          stack.push(next)
-        }
+  const componentByTile = new Int32Array(
+    xCount > 0 && yCount > 0 ? xCount * yCount : 0,
+  ).fill(-1)
+
+  if (xCount > 0 && yCount > 0) {
+    // Precompute the grid-edge barriers once per call: bucket the wall
+    // intervals lying on each vertical/horizontal grid boundary so the flood
+    // fill never rescans the full wall list for every tile edge.
+    const verticalWallIntervals = new Map<
+      number,
+      { min: number; max: number }[]
+    >()
+    const horizontalWallIntervals = new Map<
+      number,
+      { min: number; max: number }[]
+    >()
+    for (const line of lines) {
+      if (Math.abs(line.start.x - line.end.x) < TOL) {
+        addWallIntervalsOnMatchingBoundaries(
+          verticalWallIntervals,
+          xs,
+          xCount - 1,
+          line.start.x,
+          Math.min(line.start.y, line.end.y),
+          Math.max(line.start.y, line.end.y),
+        )
       }
-      componentId++
+      if (Math.abs(line.start.y - line.end.y) < TOL) {
+        addWallIntervalsOnMatchingBoundaries(
+          horizontalWallIntervals,
+          ys,
+          yCount - 1,
+          line.start.y,
+          Math.min(line.start.x, line.end.x),
+          Math.max(line.start.x, line.end.x),
+        )
+      }
+    }
+    const verticalBarriers = new Map<number, BarrierIntervalIndex>()
+    for (const [boundaryIndex, intervals] of verticalWallIntervals) {
+      verticalBarriers.set(boundaryIndex, buildBarrierIntervalIndex(intervals))
+    }
+    const horizontalBarriers = new Map<number, BarrierIntervalIndex>()
+    for (const [boundaryIndex, intervals] of horizontalWallIntervals) {
+      horizontalBarriers.set(
+        boundaryIndex,
+        buildBarrierIntervalIndex(intervals),
+      )
+    }
+
+    const stack = new Int32Array(xCount * yCount)
+    let componentId = 0
+    for (let startX = 0; startX < xCount; startX++) {
+      for (let startY = 0; startY < yCount; startY++) {
+        const startIndex = startX * yCount + startY
+        if (componentByTile[startIndex] !== -1) continue
+        componentByTile[startIndex] = componentId
+        let stackSize = 0
+        stack[stackSize++] = startIndex
+        while (stackSize > 0) {
+          const currentIndex = stack[--stackSize] as number
+          const currentX = Math.floor(currentIndex / yCount)
+          const currentY = currentIndex - currentX * yCount
+          const yMin = ys[currentY]
+          const yMax = ys[currentY + 1]
+          const xMin = xs[currentX]
+          const xMax = xs[currentX + 1]
+          for (const [dx, dy] of NEIGHBOR_OFFSETS) {
+            const nextX = currentX + dx
+            const nextY = currentY + dy
+            if (nextX < 0 || nextX >= xCount || nextY < 0 || nextY >= yCount)
+              continue
+            const nextIndex = nextX * yCount + nextY
+            if (componentByTile[nextIndex] !== -1) continue
+            let blocked = false
+            if (nextX !== currentX) {
+              const boundaryIndex = Math.max(nextX, currentX)
+              const boundaryX = xs[boundaryIndex]
+              if (
+                boundaryX === undefined ||
+                yMin === undefined ||
+                yMax === undefined
+              )
+                continue
+              blocked = intervalIsBlockedByBarriers(
+                verticalBarriers.get(boundaryIndex),
+                yMin,
+                yMax,
+              )
+            } else {
+              const boundaryIndex = Math.max(nextY, currentY)
+              const boundaryY = ys[boundaryIndex]
+              if (
+                boundaryY === undefined ||
+                xMin === undefined ||
+                xMax === undefined
+              )
+                continue
+              blocked = intervalIsBlockedByBarriers(
+                horizontalBarriers.get(boundaryIndex),
+                xMin,
+                xMax,
+              )
+            }
+            if (blocked) continue
+            componentByTile[nextIndex] = componentId
+            stack[stackSize++] = nextIndex
+          }
+        }
+        componentId++
+      }
     }
   }
+
   return cellContents.map((cell) => {
     const center = cellCenter(cell)
     const xIndex = xs.findIndex(
@@ -312,7 +423,8 @@ const cellRegionComponents = (lines: BLine[], cellContents: InputRect[]) => {
         center.y >= y - TOL &&
         center.y <= (ys[index + 1] ?? y) + TOL,
     )
-    return componentByTile.get(tileKey(xIndex, yIndex)) ?? -1
+    if (xIndex < 0 || yIndex < 0) return -1
+    return componentByTile[xIndex * yCount + yIndex] ?? -1
   })
 }
 
