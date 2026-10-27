@@ -22,6 +22,8 @@ export class ComputeMidlinesSolver extends BaseSolver {
         this._allPairs.push([i, j])
       }
     }
+    // Each step processes one pair, including pairs that produce no midline.
+    this.MAX_ITERATIONS = Math.max(this.MAX_ITERATIONS, this._allPairs.length)
   }
 
   override _step() {
